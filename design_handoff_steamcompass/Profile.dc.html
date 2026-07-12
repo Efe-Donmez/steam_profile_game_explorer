@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#060A14"/>
+      <circle cx="50" cy="50" r="28" fill="none" stroke="#4CF3FF" stroke-width="2"/>
+    </svg>
+  </template>
+</helmet>
+
+<div style="background:#060A14; color:#E9EEF5; font-family:'Inter',sans-serif; min-height:100vh; position:relative;">
+  <div style="position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: linear-gradient(rgba(76,243,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(76,243,255,0.035) 1px, transparent 1px);
+    background-size: 48px 48px;"></div>
+  <div style="position:fixed; top:-10%; right:-10%; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle, rgba(76,243,255,0.08), transparent 70%); filter:blur(130px); z-index:0; pointer-events:none;"></div>
+
+  <div style="position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:20px 48px; backdrop-filter:blur(14px); background:rgba(6,10,20,0.7); border-bottom:1px solid #1B2436;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 26 26"><circle cx="13" cy="13" r="11" fill="none" stroke="#4CF3FF" stroke-width="1.5"/><circle cx="13" cy="13" r="2.4" fill="#4CF3FF"/></svg>
+      <span style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:18px;">SteamCompass</span>
+    </div>
+    <a href="App.dc.html" style="background:#4CF3FF; color:#060A14; font-weight:600; font-size:14px; padding:11px 22px; border-radius:8px; text-decoration:none;">Önerilere Geç</a>
+  </div>
+
+  <div style="position:relative; z-index:1; max-width:1520px; margin:0 auto; padding:48px 40px 40px 40px;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:1.5px; color:#4CF3FF; margin-bottom:12px;">TARAMA TAMAMLANDI</div>
+    <h1 style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:40px; margin:0 0 32px 0;">Oyun DNA'n</h1>
+
+    <!-- KPI STRIP -->
+    <div style="display:flex; background:#0E1524; border:1px solid #1B2436; border-radius:10px; overflow:hidden; margin-bottom:8px;">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+        <div style="flex:1; padding:20px 18px; border-right:1px solid #1B2436;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:24px; color:#E9EEF5; margin-bottom:6px;">{{ k.value }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.5px; color:#7C8AA0;">{{ k.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7C8AA0; margin-bottom:40px;">*Satın alma anındaki fiyat değil, güncel liste fiyatına göre tahmindir.</div>
+
+    <!-- BENTO GRID -->
+    <div style="display:grid; grid-template-columns:repeat(12, 1fr); gap:24px; margin-bottom:24px;">
+
+      <!-- HERO: genre/tag orbit -->
+      <div style="position:relative; grid-column:span 6; grid-row:span 2; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:28px; min-height:520px;">
+        {{ cornerBrackets }}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0;">TÜR/TAG YÖRÜNGESİ</div>
+          <div style="display:flex; border:1px solid #1B2436; border-radius:6px; overflow:hidden;">
+            <div onClick="{{ setModeGenre }}" style="padding:6px 12px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; background:{{ genreTabBg }}; color:{{ genreTabText }};">TÜR</div>
+            <div onClick="{{ setModeTag }}" style="padding:6px 12px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; background:{{ tagTabBg }}; color:{{ tagTabText }};">TAG</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center;">
+          {{ orbitChart }}
+        </div>
+        <p style="font-size:15px; line-height:1.65; margin:8px 0 0 0; color:#E9EEF5;">En çok zamanını <strong style="color:#4CF3FF;">Strateji</strong> ve <strong style="color:#4CF3FF;">RPG</strong> oyunlarına ayırıyorsun. Ortalama <span style="font-family:'IBM Plex Mono',monospace;">₺180</span> aralığında oyun alıyorsun ve genelde 80+ puanlı oyunları tercih ediyorsun.</p>
+      </div>
+
+      <!-- MOST PLAYED 15 -->
+      <div style="position:relative; grid-column:span 6; grid-row:span 2; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:28px; min-height:520px; overflow:hidden;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">EN ÇOK ZAMAN AYIRDIKLARIN</div>
+        <div style="display:flex; flex-direction:column; gap:10px; max-height:440px; overflow-y:auto; padding-right:6px;">
+          <sc-for list="{{ mostPlayed }}" as="g" hint-placeholder-count="15">
+            <div style="display:grid; grid-template-columns:20px 1fr 90px; align-items:center; gap:12px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7C8AA0;">{{ g.rank }}</div>
+              <div>
+                <div style="font-size:13px; margin-bottom:5px; display:flex; align-items:center; gap:8px;">
+                  <span>{{ g.name }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#7C8AA0; border:1px solid #1B2436; border-radius:999px; padding:1px 8px;">{{ g.genre }}</span>
+                </div>
+                <div style="height:6px; background:#1B2436; border-radius:3px; overflow:hidden;">
+                  <div style="height:100%; width:{{ g.pct }}%; background:#4CF3FF; border-radius:3px;"></div>
+                </div>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; text-align:right; color:#4CF3FF;">{{ g.hours }} sa</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- SCATTER: price/playtime -->
+      <div style="position:relative; grid-column:span 4; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:280px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">PARA/ZAMAN DEĞERİ</div>
+        {{ scatterChart }}
+      </div>
+
+      <!-- HISTOGRAM: metacritic -->
+      <div style="position:relative; grid-column:span 4; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:280px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">PUAN TERCİHİN</div>
+        {{ histogramChart }}
+      </div>
+
+      <!-- DONUT: reviews -->
+      <div style="position:relative; grid-column:span 4; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:280px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">TOPLULUK YORUM PROFİLİN</div>
+        <div style="display:flex; align-items:center; gap:20px;">
+          {{ donutChart }}
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <sc-for list="{{ reviewBuckets }}" as="b" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:8px; font-size:12px;">
+                <span style="width:8px; height:8px; border-radius:2px; background:{{ b.color }}; flex-shrink:0;"></span>
+                <span style="color:#E9EEF5;">{{ b.label }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; color:#7C8AA0;">{{ b.count }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMELINE: release years -->
+      <div style="position:relative; grid-column:span 8; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:260px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">KÜTÜPHANEN BİR ZAMAN ÇİZELGESİ</div>
+        {{ timelineChart }}
+      </div>
+
+      <!-- SPIDER: feature radar -->
+      <div style="position:relative; grid-column:span 4; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:260px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">OYNAMA TARZI ÖZELLİKLERİ</div>
+        <div style="display:flex; align-items:center; justify-content:center;">
+          {{ spiderChart }}
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div style="position:relative; grid-column:span 4; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:260px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:12px;">BAŞARIM KARNEN</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:36px; color:#4CF3FF; margin-bottom:4px;">%34</div>
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:18px;">ortalama tamamlama</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#7C8AA0; margin-bottom:10px;">EN NADİR AÇTIKLARIN</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ rareAchievements }}" as="a" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:12px; color:#E9EEF5;">{{ a.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; background:#FFB84D; color:#060A14; padding:2px 8px; border-radius:999px; font-weight:600;">%{{ a.pct }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- NICHE GAUGE -->
+      <div style="position:relative; grid-column:span 4; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:260px; display:flex; flex-direction:column;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">NİŞ SKORU</div>
+        <div style="display:flex; align-items:center; justify-content:center; flex:1;">
+          {{ gaugeChart }}
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#7C8AA0; text-align:center;">Tahmini veridir (SteamSpy), kesin oyuncu sayısı değildir.</div>
+      </div>
+
+      <!-- TEMPO (last 2 weeks) -->
+      <div style="position:relative; grid-column:span 12; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px; min-height:180px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">SON 2 HAFTA</div>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:16px;">
+          <sc-for list="{{ tempoGames }}" as="t" hint-placeholder-count="5">
+            <div style="background:#060A14; border:1px solid #1B2436; border-radius:8px; padding:14px;">
+              <div style="font-size:13px; margin-bottom:8px;">{{ t.name }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:18px; color:#4CF3FF;">{{ t.hours }} sa</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- STUDIOS -->
+      <div style="position:relative; grid-column:span 12; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:24px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:16px;">EN ÇOK GÜVENDİĞİN STÜDYOLAR</div>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:16px;">
+          <sc-for list="{{ studios }}" as="s" hint-placeholder-count="5">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <div style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:14px;">{{ s.name }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0;">{{ s.games }} oyun · {{ s.hours }} sa</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENRE DETAIL -->
+    <div style="margin-bottom:64px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0; margin-bottom:20px;">TÜR KIRILIMI — DETAY</div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <sc-for list="{{ genreBreakdown }}" as="g" hint-placeholder-count="6">
+          <div style="display:grid; grid-template-columns:140px 1fr 60px; align-items:center; gap:20px; background:#0E1524; border:1px solid #1B2436; border-radius:8px; padding:16px 20px;">
+            <div style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:15px;">{{ g.name }}</div>
+            <div style="height:8px; background:#1B2436; border-radius:4px; position:relative; overflow:hidden;">
+              <div style="position:absolute; left:0; top:0; bottom:0; width:{{ g.pct }}%; background:#4CF3FF; border-radius:4px;"></div>
+            </div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; text-align:right; color:#4CF3FF;">%{{ g.pct }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:center;">
+      <a href="App.dc.html" style="background:#4CF3FF; color:#060A14; font-weight:600; font-size:16px; padding:18px 36px; border-radius:8px; text-decoration:none;">Bu Profile Göre Öner</a>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { orbitMode: 'genre' };
+
+  cornerBracket(top, left) {
+    const style = {
+      position: 'absolute', width: '14px', height: '14px',
+      [top ? 'top' : 'bottom']: '10px', [left ? 'left' : 'right']: '10px',
+      borderTop: top ? '1.5px solid #4CF3FF' : 'none',
+      borderBottom: !top ? '1.5px solid #4CF3FF' : 'none',
+      borderLeft: left ? '1.5px solid #4CF3FF' : 'none',
+      borderRight: !left ? '1.5px solid #4CF3FF' : 'none',
+      opacity: 0.5,
+    };
+    return React.createElement('div', { style });
+  }
+
+  buildOrbit(mode) {
+    const genreData = [
+      { name: 'Strateji', pct: 32 }, { name: 'RPG', pct: 26 }, { name: 'Rogue-like', pct: 15 },
+      { name: 'FPS', pct: 12 }, { name: 'Simülasyon', pct: 9 }, { name: 'Puzzle', pct: 6 },
+    ];
+    const tagData = [
+      { name: 'Souls-like', pct: 18 }, { name: 'Cozy', pct: 14 }, { name: 'Metroidvania', pct: 12 },
+      { name: 'Deck-building', pct: 11 }, { name: 'Roguelite', pct: 10 }, { name: 'Base-building', pct: 9 },
+      { name: 'Turn-Based', pct: 8 }, { name: 'Atmospheric', pct: 7 }, { name: 'Difficult', pct: 6 }, { name: 'Story Rich', pct: 5 },
+    ];
+    const data = mode === 'genre' ? genreData : tagData;
+    const cx = 210, cy = 210;
+    const step = 360 / data.length;
+    const pts = data.map((d, i) => {
+      const angle = -90 + i * step;
+      const rad = (angle * Math.PI) / 180;
+      const dist = 36 + d.pct * 5.2;
+      return { ...d, x: cx + Math.cos(rad) * dist, y: cy + Math.sin(rad) * dist };
+    });
+    return React.createElement('svg', { width: 420, height: 420, viewBox: '0 0 420 420', style: { overflow: 'visible' } },
+      [1,2,3,4].map(i => React.createElement('circle', { key:'r'+i, cx, cy, r:i*38, fill:'none', stroke:'#1B2436', strokeWidth:1 })),
+      pts.map((p,i) => React.createElement('line', { key:'l'+i, x1:cx, y1:cy, x2:p.x, y2:p.y, stroke:'#4CF3FF', strokeWidth:1, opacity:0.3 })),
+      React.createElement('circle', { cx, cy, r:13, fill:'#060A14', stroke:'#4CF3FF', strokeWidth:2 }),
+      React.createElement('text', { x:cx, y:cy+4, textAnchor:'middle', fill:'#4CF3FF', fontFamily:'IBM Plex Mono, monospace', fontSize:9, fontWeight:600 }, 'SEN'),
+      pts.map((p,i) => React.createElement('g', { key:'p'+i },
+        React.createElement('circle', { cx:p.x, cy:p.y, r: 5 + p.pct/8, fill:'#0E1524', stroke:'#4CF3FF', strokeWidth:2 }),
+        React.createElement('text', {
+          x: p.x + (p.x > cx ? 13 : p.x < cx ? -13 : 0), y: p.y + (p.y > cy ? 18 : p.y < cy ? -12 : 4),
+          textAnchor: p.x > cx ? 'start' : p.x < cx ? 'end' : 'middle',
+          fill:'#E9EEF5', fontFamily:'IBM Plex Mono, monospace', fontSize:11
+        }, `${p.name} %${p.pct}`)
+      ))
+    );
+  }
+
+  buildScatter() {
+    const points = [
+      { price: 219, hours: 88 }, { price: 60, hours: 120 }, { price: 299, hours: 40 },
+      { price: 89, hours: 210 }, { price: 350, hours: 15 }, { price: 40, hours: 60 },
+      { price: 150, hours: 300 }, { price: 480, hours: 8 }, { price: 20, hours: 5 }, { price: 260, hours: 160 },
+    ];
+    const w = 260, h = 200, pad = 10;
+    return React.createElement('svg', { width: '100%', height: 200, viewBox: `0 0 ${w} ${h}` },
+      React.createElement('rect', { x: w*0.55, y: 0, width: w*0.45, height: h*0.45, fill:'rgba(76,243,255,0.08)' }),
+      React.createElement('line', { x1:pad, y1:h-pad, x2:w-pad, y2:h-pad, stroke:'#1B2436', strokeWidth:1 }),
+      React.createElement('line', { x1:pad, y1:pad, x2:pad, y2:h-pad, stroke:'#1B2436', strokeWidth:1 }),
+      points.map((p,i) => React.createElement('circle', {
+        key:i, cx: pad + (p.price/500)*(w-2*pad), cy: h-pad - (p.hours/320)*(h-2*pad),
+        r:5, fill:'#4CF3FF', opacity:0.85
+      })),
+      React.createElement('text', { x:w-pad, y:14, textAnchor:'end', fill:'#4CF3FF', fontFamily:'IBM Plex Mono, monospace', fontSize:9 }, 'EN İYİ DEĞER')
+    );
+  }
+
+  buildHistogram() {
+    const buckets = [
+      { label:'0-49', count:3 }, { label:'50-59', count:8 }, { label:'60-69', count:22 },
+      { label:'70-79', count:41 }, { label:'80-89', count:58 }, { label:'90-100', count:19 }, { label:'—', count:33 },
+    ];
+    const max = Math.max(...buckets.map(b => b.count));
+    const w = 280, h = 200, barW = 30, gap = 8;
+    return React.createElement('svg', { width:'100%', height:200, viewBox:`0 0 ${w} ${h}` },
+      buckets.map((b,i) => {
+        const bh = (b.count/max) * 140;
+        const x = 6 + i * (barW+gap);
+        return React.createElement('g', { key:i },
+          React.createElement('rect', { x, y: 150-bh, width:barW, height:bh, fill: b.label==='—' ? '#1B2436' : '#4CF3FF', opacity: b.label==='—' ? 1 : 0.85, rx:2 }),
+          React.createElement('text', { x:x+barW/2, y:168, textAnchor:'middle', fill:'#7C8AA0', fontFamily:'IBM Plex Mono, monospace', fontSize:8 }, b.label)
+        );
+      }),
+      React.createElement('line', { x1: 6 + 4*(barW+gap) + barW*0.6, y1:5, x2: 6 + 4*(barW+gap) + barW*0.6, y2:150, stroke:'#4CF3FF', strokeWidth:1.5, strokeDasharray:'3,3' }),
+      React.createElement('text', { x: 6 + 4*(barW+gap) + barW*0.6, y:184, textAnchor:'middle', fill:'#4CF3FF', fontFamily:'IBM Plex Mono, monospace', fontSize:8 }, 'ORT. 82')
+    );
+  }
+
+  buildDonut() {
+    const buckets = [
+      { label:'Harika (%90+)', count:96, color:'#4CF3FF' },
+      { label:'Olumlu (%70-89)', count:62, color:'#8B7CF6' },
+      { label:'Karışık (%40-69)', count:21, color:'#FFB84D' },
+      { label:'Olumsuz (<%40)', count:5, color:'#FF4D6D' },
+    ];
+    const total = buckets.reduce((a,b)=>a+b.count,0);
+    let acc = 0;
+    const r = 50, cx = 60, cy = 60, sw = 18;
+    const circumference = 2*Math.PI*r;
+    const arcs = buckets.map((b,i) => {
+      const frac = b.count/total;
+      const dash = frac*circumference;
+      const el = React.createElement('circle', {
+        key:i, cx, cy, r, fill:'none', stroke:b.color, strokeWidth:sw,
+        strokeDasharray:`${dash} ${circumference-dash}`, strokeDashoffset: -acc*circumference,
+        transform:`rotate(-90 ${cx} ${cy})`
+      });
+      acc += frac;
+      return el;
+    });
+    return React.createElement('svg', { width:120, height:120, viewBox:'0 0 120 120', style:{flexShrink:0} }, arcs,
+      React.createElement('text', { x:cx, y:cy+4, textAnchor:'middle', fill:'#E9EEF5', fontFamily:'IBM Plex Mono, monospace', fontSize:13, fontWeight:600 }, '184')
+    );
+  }
+
+  buildTimeline() {
+    const years = [
+      2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026
+    ];
+    const counts = [2,3,4,5,6,8,9,11,14,18,34,22,19,15,13,11,9,6,3];
+    const max = Math.max(...counts);
+    const w = 800, h = 170, barW = 34, gap = 6;
+    return React.createElement('svg', { width:'100%', height:170, viewBox:`0 0 ${w} ${h}` },
+      years.map((y,i) => {
+        const bh = (counts[i]/max)*120;
+        const x = 6 + i*(barW+gap);
+        const isPeak = counts[i] === max;
+        return React.createElement('g', { key:i },
+          React.createElement('rect', { x, y:140-bh, width:barW, height:bh, fill: isPeak ? '#FFB84D' : '#4CF3FF', opacity: isPeak ? 1 : 0.7, rx:2 }),
+          React.createElement('text', { x:x+barW/2, y:156, textAnchor:'middle', fill:'#7C8AA0', fontFamily:'IBM Plex Mono, monospace', fontSize:9 }, String(y).slice(2))
+        );
+      })
+    );
+  }
+
+  buildSpider() {
+    const axes = [
+      { name:'Çok Oyunculu', pct:45 }, { name:'Co-op', pct:30 }, { name:'Başarımlar', pct:88 },
+      { name:'Bulut Kayıt', pct:70 }, { name:'Kumanda', pct:55 }, { name:'Tek Oyunculu', pct:92 },
+    ];
+    const cx=110, cy=110, maxR=80;
+    const step = 360/axes.length;
+    const pts = axes.map((a,i) => {
+      const angle = -90 + i*step, rad = angle*Math.PI/180;
+      const r = (a.pct/100)*maxR;
+      return { x: cx+Math.cos(rad)*r, y: cy+Math.sin(rad)*r, labelX: cx+Math.cos(rad)*(maxR+22), labelY: cy+Math.sin(rad)*(maxR+22), name:a.name };
+    });
+    const ringPts = (frac) => axes.map((a,i) => {
+      const angle=-90+i*step, rad=angle*Math.PI/180;
+      return `${cx+Math.cos(rad)*maxR*frac},${cy+Math.sin(rad)*maxR*frac}`;
+    }).join(' ');
+    return React.createElement('svg', { width:220, height:220, viewBox:'0 0 220 220', style:{overflow:'visible'} },
+      [0.33,0.66,1].map((f,i) => React.createElement('polygon', { key:i, points: ringPts(f), fill:'none', stroke:'#1B2436', strokeWidth:1 })),
+      React.createElement('polygon', { points: pts.map(p=>`${p.x},${p.y}`).join(' '), fill:'rgba(76,243,255,0.15)', stroke:'#4CF3FF', strokeWidth:1.5 }),
+      pts.map((p,i) => React.createElement('text', { key:i, x:p.labelX, y:p.labelY, textAnchor:'middle', fill:'#7C8AA0', fontFamily:'IBM Plex Mono, monospace', fontSize:8 }, p.name))
+    );
+  }
+
+  buildGauge() {
+    const value = 62;
+    const cx=100, cy=100, r=75;
+    const angle = -180 + (value/100)*180;
+    const rad = angle*Math.PI/180;
+    const nx = cx + Math.cos(rad)*r*0.85, ny = cy + Math.sin(rad)*r*0.85;
+    const arc = (from,to,color) => {
+      const a1 = -180+from*1.8, a2=-180+to*1.8;
+      const r1 = a1*Math.PI/180, r2=a2*Math.PI/180;
+      const x1=cx+Math.cos(r1)*r, y1=cy+Math.sin(r1)*r;
+      const x2=cx+Math.cos(r2)*r, y2=cy+Math.sin(r2)*r;
+      return React.createElement('path', { d:`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`, fill:'none', stroke:color, strokeWidth:14, strokeLinecap:'round' });
+    };
+    return React.createElement('svg', { width:200, height:130, viewBox:'0 0 200 130' },
+      arc(0,50,'#8B7CF6'), arc(50,100,'#4CF3FF'),
+      React.createElement('line', { x1:cx, y1:cy, x2:nx, y2:ny, stroke:'#E9EEF5', strokeWidth:3 }),
+      React.createElement('circle', { cx, cy, r:6, fill:'#E9EEF5' }),
+      React.createElement('text', { x:cx-60, y:cy+22, fill:'#8B7CF6', fontFamily:'IBM Plex Mono, monospace', fontSize:10 }, 'NİŞ'),
+      React.createElement('text', { x:cx+35, y:cy+22, fill:'#4CF3FF', fontFamily:'IBM Plex Mono, monospace', fontSize:10 }, 'MAINSTREAM')
+    );
+  }
+
+  renderVals() {
+    const orbitChart = this.buildOrbit(this.state.orbitMode);
+    const isGenre = this.state.orbitMode === 'genre';
+
+    const mostPlayed = [
+      { name:'Iron Vanguard', genre:'Strateji', hours:214 }, { name:'Ashen Hollow', genre:'RPG', hours:188 },
+      { name:'Wintercall Tactics', genre:'Strateji', hours:162 }, { name:'Nova Drift', genre:'Rogue-like', hours:141 },
+      { name:'Silent Meridian', genre:'RPG', hours:129 }, { name:'Frontier Ledger', genre:'Simülasyon', hours:118 },
+      { name:'Hollow Signal', genre:'FPS', hours:104 }, { name:'Cinder March', genre:'Strateji', hours:96 },
+      { name:'Driftbound', genre:'Rogue-like', hours:88 }, { name:'Paper Keep', genre:'Puzzle', hours:74 },
+      { name:'Longshore', genre:'RPG', hours:66 }, { name:'Vantage Point', genre:'FPS', hours:58 },
+      { name:'Rusted Compass', genre:'Simülasyon', hours:49 }, { name:'Echo Ward', genre:'Strateji', hours:41 },
+      { name:'Fallow Field', genre:'Puzzle', hours:33 },
+    ].map((g,i) => ({ ...g, rank: i+1, pct: Math.round((g.hours/214)*100) }));
+
+    return {
+      cornerBrackets: React.createElement(React.Fragment, null,
+        this.cornerBracket(true,true), this.cornerBracket(true,false),
+        this.cornerBracket(false,true), this.cornerBracket(false,false)
+      ),
+      kpis: [
+        { value:'184', label:'TOPLAM OYUN' },
+        { value:'2,340 SA', label:'TOPLAM OYNAMA SÜRESİ' },
+        { value:'₺14,280*', label:'TAHMİNİ TOPLAM HARCAMA' },
+        { value:'%78', label:'ORTALAMA POZİTİF YORUM ORANI' },
+        { value:'82', label:'ORTALAMA METACRITIC PUANI' },
+        { value:'%34', label:'ORTALAMA BAŞARIM TAMAMLAMA' },
+      ],
+      setModeGenre: () => this.setState({ orbitMode: 'genre' }),
+      setModeTag: () => this.setState({ orbitMode: 'tag' }),
+      genreTabBg: isGenre ? '#4CF3FF' : 'transparent',
+      genreTabText: isGenre ? '#060A14' : '#7C8AA0',
+      tagTabBg: !isGenre ? '#4CF3FF' : 'transparent',
+      tagTabText: !isGenre ? '#060A14' : '#7C8AA0',
+      orbitChart,
+      mostPlayed,
+      scatterChart: this.buildScatter(),
+      histogramChart: this.buildHistogram(),
+      donutChart: this.buildDonut(),
+      reviewBuckets: [
+        { label:'Harika (%90+)', count:96, color:'#4CF3FF' },
+        { label:'Olumlu (%70-89)', count:62, color:'#8B7CF6' },
+        { label:'Karışık (%40-69)', count:21, color:'#FFB84D' },
+        { label:'Olumsuz (<%40)', count:5, color:'#FF4D6D' },
+      ],
+      timelineChart: this.buildTimeline(),
+      spiderChart: this.buildSpider(),
+      rareAchievements: [
+        { name:'Karanlığın Efendisi', pct:'2.1' },
+        { name:'Sıfır Ölüm', pct:'3.4' },
+        { name:'Gizli Son', pct:'4.8' },
+      ],
+      gaugeChart: this.buildGauge(),
+      tempoGames: [
+        { name:'Iron Vanguard', hours:14.2 }, { name:'Ashen Hollow', hours:9.5 },
+        { name:'Nova Drift', hours:6.1 }, { name:'Wintercall Tactics', hours:4.3 }, { name:'Silent Meridian', hours:2.8 },
+      ],
+      studios: [
+        { name:'Frostwind Studios', games:6, hours:210 }, { name:'Ledger Games', games:4, hours:140 },
+        { name:'Hollow Peak', games:3, hours:95 }, { name:'Driftworks', games:3, hours:80 }, { name:'Meridian Interactive', games:2, hours:60 },
+      ],
+      genreBreakdown: [
+        { name:'Strateji', pct:32 }, { name:'RPG', pct:26 }, { name:'Rogue-like', pct:15 },
+        { name:'FPS', pct:12 }, { name:'Simülasyon', pct:9 }, { name:'Puzzle', pct:6 },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

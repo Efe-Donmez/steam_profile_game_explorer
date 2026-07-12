@@ -1,0 +1,552 @@
+<div class="relative min-h-screen bg-void-ink text-ghost-white font-body">
+  <app-scene-background [blobs]="[{ size: 700, color: 'cyan', top: '-10%', right: '-10%' }]" />
+
+  <div
+    class="sticky top-0 z-50 flex items-center justify-between px-12 py-5 backdrop-blur-md border-b border-panel-line"
+    style="background: rgba(6,10,20,0.7);"
+  >
+    <div class="flex items-center gap-2.5">
+      <svg width="24" height="24" viewBox="0 0 26 26">
+        <circle cx="13" cy="13" r="11" fill="none" stroke="#4CF3FF" stroke-width="1.5" />
+        <circle cx="13" cy="13" r="2.4" fill="#4CF3FF" />
+      </svg>
+      <span class="font-display font-semibold text-lg">SteamCompass</span>
+    </div>
+    <app-search-box />
+    <div class="flex items-center gap-5">
+      @if (authService.user(); as user) {
+        <div class="flex items-center gap-3">
+          <img [src]="user.avatarUrl" [alt]="user.personaName" class="w-9 h-9 rounded-full border border-panel-line" />
+          <div class="flex flex-col">
+            <span class="text-sm font-semibold leading-tight">{{ user.personaName }}</span>
+            @if (user.steamLevel !== undefined && user.steamLevel !== null) {
+              <span class="font-mono text-[10px] text-ion-cyan leading-tight">SEVİYE {{ user.steamLevel }}</span>
+            }
+          </div>
+        </div>
+      }
+      <a routerLink="/friends" class="text-slate-mute font-semibold text-sm no-underline hover:text-ghost-white">
+        Arkadaşlar
+      </a>
+      <a routerLink="/app" class="bg-ion-cyan text-void-ink font-semibold text-sm px-[22px] py-[11px] rounded-lg no-underline">
+        Önerilere Geç
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <!-- Skeleton: mirrors the real layout so the page doesn't jump on load -->
+    <div class="relative z-10 max-w-[1520px] mx-auto pt-12 px-10 pb-10">
+      <div class="skeleton h-4 w-44 mb-3"></div>
+      <div class="skeleton h-10 w-64 mb-8"></div>
+      <div class="skeleton h-[90px] w-full mb-10"></div>
+      <div class="grid grid-cols-12 gap-6">
+        <div class="skeleton col-span-6 h-[520px]"></div>
+        <div class="skeleton col-span-6 h-[520px]"></div>
+        <div class="skeleton col-span-4 h-[280px]"></div>
+        <div class="skeleton col-span-4 h-[280px]"></div>
+        <div class="skeleton col-span-4 h-[280px]"></div>
+      </div>
+    </div>
+  } @else {
+    <div class="relative z-10 max-w-[1520px] mx-auto pt-12 px-10 pb-10">
+      <div class="font-mono text-[13px] tracking-[1.5px] text-ion-cyan mb-3 anim-panel">TARAMA TAMAMLANDI</div>
+      <h1 class="font-display font-bold text-4xl mb-6 anim-panel" style="animation-delay: 60ms;">Oyun DNA'n</h1>
+
+      <!-- COVERAGE BANNER -->
+      @if (showCoverageBanner) {
+        <div class="anim-panel bg-deep-slate border border-amber-flare/40 rounded-card px-5 py-3.5 mb-6 flex items-center gap-4" style="animation-delay: 90ms;">
+          <svg width="18" height="18" viewBox="0 0 18 18" class="flex-shrink-0">
+            <circle cx="9" cy="9" r="8" fill="none" stroke="#FFB84D" stroke-width="1.5" />
+            <text x="9" y="13" text-anchor="middle" fill="#FFB84D" style="font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;">!</text>
+          </svg>
+          <div class="flex-1">
+            <div class="text-[13px] mb-1.5">
+              Katalog verisi işleniyor:
+              <span class="font-mono text-amber-flare">{{ profile?.coverage?.catalog?.fetched }}/{{ profile?.coverage?.catalog?.total }}</span>
+              oyun — bazı paneller şimdilik kısmi veri gösteriyor.
+            </div>
+            <div class="h-1 bg-panel-line rounded-full overflow-hidden">
+              <div class="h-full bg-amber-flare rounded-full anim-bar" [style.width.%]="catalogCoveragePct"></div>
+            </div>
+          </div>
+          <div class="font-mono text-sm text-amber-flare">%{{ catalogCoveragePct }}</div>
+        </div>
+      }
+
+      <!-- KPI STRIP -->
+      <div class="grid grid-cols-4 bg-deep-slate border border-panel-line rounded-card overflow-hidden mb-2 anim-panel" style="animation-delay: 120ms;">
+        @for (kpi of kpis; track kpi.label; let i = $index) {
+          <div class="px-[18px] py-5 border-r border-panel-line" [class.border-b]="i < 4">
+            <div
+              class="font-mono text-2xl mb-1.5"
+              [appCountUp]="kpi.value"
+              [countUpPrefix]="kpi.prefix"
+              [countUpSuffix]="kpi.suffix"
+            ></div>
+            <div class="font-mono text-[11px] tracking-[0.5px] text-slate-mute">{{ kpi.label }}</div>
+          </div>
+        }
+      </div>
+      <div class="font-mono text-[11px] text-slate-mute mb-10">
+        *Satın alma anındaki fiyat değil, oyunların indirimsiz liste fiyatına göre tahmindir.
+      </div>
+
+      <!-- WEEKLY TREND -->
+      <div class="relative bg-deep-slate border border-panel-line rounded-card p-7 mb-6 anim-panel card-hover" style="animation-delay: 150ms;">
+        <app-corner-brackets />
+        <div class="flex items-center justify-between mb-4">
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute">SON HAFTALAR TEMPOSU</div>
+          @if (hasWeeklyTrendData && weeklyTrendDeltaPct !== null) {
+            <div class="font-mono text-[11px]" [class.text-ion-cyan]="weeklyTrendDeltaPct! >= 0" [class.text-critical-red]="weeklyTrendDeltaPct! < 0">
+              geçen haftaya göre {{ weeklyTrendDeltaPct! >= 0 ? '+' : '' }}{{ weeklyTrendDeltaPct }}%
+            </div>
+          }
+        </div>
+        @if (!hasWeeklyTrendData) {
+          <div class="flex flex-col items-center justify-center h-[140px] gap-2 text-center">
+            <div class="font-mono text-sm text-slate-mute">Veri toplanıyor</div>
+            <div class="text-xs text-slate-mute max-w-[420px]">
+              Steam API'si geçmişe dönük haftalık oynama verisi vermiyor — bu grafik her gün senkronizasyonda
+              alınan anlık görüntülerden zamanla oluşuyor. Birkaç gün içinde dolmaya başlayacak.
+            </div>
+          </div>
+        } @else {
+          <app-weekly-trend-chart [weeks]="weeklyTrendWeeks" />
+          <div class="font-mono text-[10px] text-slate-mute mt-1">Bu hafta: {{ formatMinutesLong(thisWeekMinutes) }} · Geçen hafta: {{ formatMinutesLong(lastWeekMinutes) }}</div>
+        }
+      </div>
+
+      <!-- BENTO GRID -->
+      <div class="grid grid-cols-12 gap-6 mb-6">
+        <!-- HERO: genre/tag orbit -->
+        <div class="relative col-span-6 row-span-2 bg-deep-slate border border-panel-line rounded-card p-7 min-h-[520px] overflow-hidden anim-panel card-hover" style="animation-delay: 180ms;">
+          @if (heroBackdrop) {
+            <img [src]="heroBackdrop" alt="" class="absolute inset-0 w-full h-full object-cover opacity-[0.06] pointer-events-none" />
+          }
+          <app-corner-brackets />
+          <div class="relative flex items-center justify-between mb-2">
+            <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute">TÜR/TAG YÖRÜNGESİ</div>
+            <div class="flex border border-panel-line rounded-md overflow-hidden">
+              <div
+                (click)="setOrbitMode('genre')"
+                class="px-3 py-1.5 cursor-pointer font-mono text-[11px] font-semibold"
+                [class.bg-ion-cyan]="orbitMode() === 'genre'"
+                [class.text-void-ink]="orbitMode() === 'genre'"
+                [class.text-slate-mute]="orbitMode() !== 'genre'"
+              >
+                TÜR
+              </div>
+              <div
+                (click)="setOrbitMode('tag')"
+                class="px-3 py-1.5 cursor-pointer font-mono text-[11px] font-semibold"
+                [class.bg-ion-cyan]="orbitMode() === 'tag'"
+                [class.text-void-ink]="orbitMode() === 'tag'"
+                [class.text-slate-mute]="orbitMode() !== 'tag'"
+              >
+                TAG
+              </div>
+            </div>
+          </div>
+          @if (orbitMode() === 'tag' && !hasTagData) {
+            <div class="relative flex flex-col items-center justify-center h-[420px] gap-2 text-center">
+              <div class="font-mono text-sm text-slate-mute">Tag verisi işleniyor (SteamSpy)</div>
+              <div class="text-xs text-slate-mute max-w-[320px]">
+                Topluluk tag'leri arka planda toplanıyor; senkronizasyon ilerledikçe burası dolacak.
+              </div>
+            </div>
+          } @else {
+            <div class="relative flex items-center justify-center">
+              <app-genre-orbit-chart [items]="orbitItems" (nodeClick)="onOrbitNodeClick($event)" />
+            </div>
+          }
+          @if (orbitMode() === 'tag' && hasTagData) {
+            <div class="relative font-mono text-[10px] text-slate-mute mt-1">Tag verisi topluluk kaynaklıdır (SteamSpy, tahmini).</div>
+          }
+          @if (genreBreakdown.length > 0) {
+            <p class="relative text-[15px] leading-[1.65] mt-2 m-0">
+              En çok zamanını <strong class="text-ion-cyan">{{ topTwoGenres }}</strong> oyunlarına ayırıyorsun.
+              Ortalama <span class="font-mono">{{ currencySymbol }}{{ profile?.avgPricePaid ? formatCurrency(profile!.avgPricePaid) : 0 }}</span>
+              aralığında oyun alıyorsun ve genelde {{ profile?.avgMetacriticPreference }}+ puanlı oyunları tercih ediyorsun.
+            </p>
+          }
+        </div>
+
+        <!-- MOST PLAYED 15 -->
+        <div class="relative col-span-6 row-span-2 bg-deep-slate border border-panel-line rounded-card p-7 min-h-[520px] overflow-hidden anim-panel card-hover" style="animation-delay: 240ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">EN ÇOK ZAMAN AYIRDIKLARIN</div>
+          <div class="flex flex-col gap-2.5 max-h-[440px] overflow-y-auto pr-1.5">
+            @for (g of mostPlayed; track g.appid) {
+              <div class="grid grid-cols-[20px_60px_1fr_90px] items-center gap-3 row-clickable px-1 py-0.5" (click)="goToGame(g.appid)">
+                <div class="font-mono text-[11px] text-slate-mute">{{ g.rank }}</div>
+                @if (g.capsuleImage || g.headerImage) {
+                  <img
+                    [src]="g.capsuleImage || g.headerImage"
+                    [alt]="g.name"
+                    loading="lazy"
+                    class="w-[60px] h-[28px] object-cover rounded border border-panel-line"
+                    (error)="$any($event.target).style.display = 'none'"
+                  />
+                } @else {
+                  <div class="w-[60px] h-[28px] rounded bg-panel-line"></div>
+                }
+                <div>
+                  <div class="text-[13px] mb-1 flex items-center gap-2">
+                    <span>{{ g.name }}</span>
+                    @if (g.genres[0]) {
+                      <span class="font-mono text-[10px] text-slate-mute border border-panel-line rounded-full px-2 py-0.5">{{ g.genres[0] }}</span>
+                    }
+                    @if (g.metacriticScore) {
+                      <span class="font-mono text-[10px] text-amber-flare">{{ g.metacriticScore }}</span>
+                    }
+                  </div>
+                  <div class="h-1.5 bg-panel-line rounded-full overflow-hidden">
+                    <div class="h-full bg-ion-cyan rounded-full anim-bar" [style.width.%]="g.pct" [style.animation-delay.ms]="300 + g.rank * 40"></div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-mono text-xs text-ion-cyan">{{ g.hours }} sa</div>
+                  @if (g.lastPlayed) {
+                    <div class="font-mono text-[9px] text-slate-mute">{{ formatDate(g.lastPlayed) }}</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- SCATTER -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[280px] anim-panel card-hover" style="animation-delay: 300ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">PARA/ZAMAN DEĞERİ</div>
+          <app-scatter-chart [points]="scatterPoints" [currencySymbol]="currencySymbol" (pointClick)="onScatterPointClick($event)" />
+        </div>
+
+        <!-- HISTOGRAM -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[280px] anim-panel card-hover" style="animation-delay: 360ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">PUAN TERCİHİN</div>
+          <app-histogram-chart
+            [buckets]="metacriticBuckets"
+            [averageValue]="profile?.avgMetacriticPreference"
+            (bucketClick)="onMetacriticBucketClick($event)"
+          />
+        </div>
+
+        <!-- DONUT -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[280px] anim-panel card-hover" style="animation-delay: 420ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">TOPLULUK YORUM PROFİLİN</div>
+          <div class="flex items-center gap-5">
+            <app-donut-chart
+              [buckets]="reviewDonutBuckets"
+              [centerLabel]="String(profile?.totalGames ?? 0)"
+              (segmentClick)="onSentimentClick($event)"
+            />
+            <div class="flex flex-col gap-2">
+              @for (b of reviewDonutBuckets; track b.label) {
+                <div class="flex items-center gap-2 text-xs row-clickable px-1.5 py-0.5" (click)="onSentimentClick(b.label)">
+                  <span class="w-2 h-2 rounded-sm flex-shrink-0" [style.background]="b.color"></span>
+                  <span class="text-ghost-white">{{ b.label }}</span>
+                  <span class="font-mono text-slate-mute">{{ b.count }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- RECENT TEMPO -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] anim-panel card-hover" style="animation-delay: 480ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">SON 2 HAFTA TEMPOSU</div>
+          @if ((profile?.recentTempo?.games2Weeks ?? 0) > 0) {
+            <div class="font-mono text-3xl text-ion-cyan mb-1">{{ formatMinutesLong(profile?.recentTempo?.minutes2Weeks ?? 0) }}</div>
+            <div class="text-xs text-slate-mute mb-4">{{ profile?.recentTempo?.games2Weeks }} farklı oyunda</div>
+            <div class="flex flex-col gap-2.5">
+              @for (g of profile?.recentTempo?.topRecent ?? []; track g.appid) {
+                <div class="flex items-center gap-3 row-clickable px-1 py-0.5" (click)="goToGame(g.appid)">
+                  @if (g.capsuleImage || g.headerImage) {
+                    <img
+                      [src]="g.capsuleImage || g.headerImage"
+                      [alt]="g.name"
+                      loading="lazy"
+                      class="w-[52px] h-[24px] object-cover rounded border border-panel-line"
+                      (error)="$any($event.target).style.display = 'none'"
+                    />
+                  }
+                  <span class="text-xs flex-1 truncate">{{ g.name }}</span>
+                  <span class="font-mono text-[11px] text-ion-cyan">{{ formatMinutesLong(g.minutes2Weeks) }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="flex items-center justify-center h-[160px] text-xs text-slate-mute">
+              Son 2 haftada oynama kaydı yok.
+            </div>
+          }
+        </div>
+
+        <!-- SHAME PILE -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] anim-panel card-hover" style="animation-delay: 540ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">
+            UTANÇ YIĞINI
+            <span class="text-ion-cyan cursor-pointer normal-case tracking-normal ml-1.5" (click)="openNeverPlayed()">listele →</span>
+          </div>
+          <div class="font-mono text-4xl text-amber-flare mb-1 cursor-pointer" (click)="openNeverPlayed()" [appCountUp]="profile?.neverPlayedCount ?? 0"></div>
+          <div class="text-xs text-slate-mute mb-4">oyun hiç açılmadı — kütüphanenin %{{ shamePilePct }}'i</div>
+          <div class="h-2 bg-panel-line rounded-full overflow-hidden mb-4">
+            <div class="h-full bg-amber-flare rounded-full anim-bar" [style.width.%]="shamePilePct"></div>
+          </div>
+          @if ((profile?.neverPlayedValueCents ?? 0) > 0) {
+            <div class="text-[13px] leading-[1.6]">
+              Rafta bekleyenlerin tahmini değeri:
+              <span class="font-mono text-amber-flare">{{ currencySymbol }}{{ formatCurrency(profile?.neverPlayedValueCents ?? 0) }}</span>.
+              Belki önce onları bitirmeli? 👀
+            </div>
+          }
+          <div class="font-mono text-[10px] text-slate-mute mt-3">
+            {{ profile?.freeGameCount }} ücretsiz · {{ profile?.paidGameCount }} ücretli oyun
+          </div>
+        </div>
+
+        <!-- PLATFORMS -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] anim-panel card-hover" style="animation-delay: 600ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">PLATFORM UYUMU</div>
+          <div class="flex flex-col gap-4 mt-2">
+            @for (p of platformBars; track p.name) {
+              <div class="row-clickable px-1.5 py-1" (click)="openPlatform(p.name === 'Windows' ? 'windows' : p.name === 'macOS' ? 'mac' : 'linux', p.name)">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[13px]">{{ p.name }}</span>
+                  <span class="font-mono text-xs" [style.color]="p.color">%{{ p.pct }}</span>
+                </div>
+                <div class="h-2 bg-panel-line rounded-full overflow-hidden">
+                  <div class="h-full rounded-full anim-bar" [style.background]="p.color" [style.width.%]="p.pct"></div>
+                </div>
+              </div>
+            }
+          </div>
+          @if (profile?.oldestGameYear) {
+            <div class="font-mono text-[10px] text-slate-mute mt-5">
+              Kütüphanen {{ profile?.oldestGameYear }}–{{ profile?.newestGameYear }} arasına yayılıyor · medyan {{ profile?.medianReleaseYear }}
+            </div>
+          }
+        </div>
+
+        <!-- VALUE LEAGUE -->
+        <div class="relative col-span-8 bg-deep-slate border border-panel-line rounded-card p-6 anim-panel card-hover" style="animation-delay: 660ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">{{ currencySymbol }}/SAAT DEĞER LİGİ</div>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <div class="font-mono text-[10px] tracking-[1px] text-ion-cyan mb-2.5">EN İYİ DEĞER</div>
+              <div class="flex flex-col gap-2">
+                @for (g of bestValue; track g.appid) {
+                  <div class="flex items-center gap-3 row-clickable px-1 py-0.5" (click)="goToGame(g.appid)">
+                    @if (g.capsuleImage || g.headerImage) {
+                      <img
+                        [src]="g.capsuleImage || g.headerImage"
+                        [alt]="g.name"
+                        loading="lazy"
+                        class="w-[52px] h-[24px] object-cover rounded border border-panel-line"
+                        (error)="$any($event.target).style.display = 'none'"
+                      />
+                    }
+                    <span class="text-xs flex-1 truncate">{{ g.name }}</span>
+                    <span class="font-mono text-[10px] text-slate-mute">{{ g.hours }} sa</span>
+                    <span class="font-mono text-[11px] text-ion-cyan">{{ currencySymbol }}{{ formatCostPerHour(g.centsPerHour) }}/sa</span>
+                  </div>
+                }
+              </div>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] tracking-[1px] text-amber-flare mb-2.5">EN PAHALI SAATLER</div>
+              <div class="flex flex-col gap-2">
+                @for (g of worstValue; track g.appid) {
+                  <div class="flex items-center gap-3 row-clickable px-1 py-0.5" (click)="goToGame(g.appid)">
+                    @if (g.capsuleImage || g.headerImage) {
+                      <img
+                        [src]="g.capsuleImage || g.headerImage"
+                        [alt]="g.name"
+                        loading="lazy"
+                        class="w-[52px] h-[24px] object-cover rounded border border-panel-line"
+                        (error)="$any($event.target).style.display = 'none'"
+                      />
+                    }
+                    <span class="text-xs flex-1 truncate">{{ g.name }}</span>
+                    <span class="font-mono text-[10px] text-slate-mute">{{ g.hours }} sa</span>
+                    <span class="font-mono text-[11px] text-amber-flare">{{ currencySymbol }}{{ formatCostPerHour(g.centsPerHour) }}/sa</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="font-mono text-[10px] text-slate-mute mt-4">
+            İndirimsiz liste fiyatı / toplam oynama saati · Kütüphane geneli:
+            <span class="text-ion-cyan">{{ currencySymbol }}{{ formatCostPerHour(profile?.overallCostPerHourCents ?? 0) }}/sa</span>
+          </div>
+        </div>
+
+        <!-- SPIDER -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] anim-panel card-hover" style="animation-delay: 720ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">OYNAMA TARZI ÖZELLİKLERİ</div>
+          <div class="flex items-center justify-center">
+            <app-spider-chart [axes]="spiderAxes" />
+          </div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="relative col-span-8 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] anim-panel card-hover" style="animation-delay: 780ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">KÜTÜPHANEN BİR ZAMAN ÇİZELGESİ</div>
+          <app-timeline-chart [entries]="timelineEntries" (yearClick)="onTimelineYearClick($event)" />
+        </div>
+
+        <!-- ACHIEVEMENTS -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] anim-panel card-hover" style="animation-delay: 840ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">BAŞARIM KARNEN</div>
+          <div class="font-mono text-4xl text-ion-cyan mb-1" [appCountUp]="profile?.avgAchievementCompletion ?? 0" countUpPrefix="%"></div>
+          <div class="text-xs text-slate-mute mb-3">ortalama tamamlama</div>
+          <div class="flex gap-4 mb-4">
+            <div class="row-clickable px-1.5 py-0.5" (click)="openPerfectGames()">
+              <span class="font-mono text-sm text-amber-flare">{{ profile?.perfectGamesCount ?? 0 }}</span>
+              <span class="font-mono text-[10px] text-slate-mute ml-1">%100 OYUN</span>
+            </div>
+            <div>
+              <span class="font-mono text-sm text-ion-cyan">{{ (profile?.totalAchievementsUnlocked ?? 0).toLocaleString('tr-TR') }}</span>
+              <span class="font-mono text-[10px] text-slate-mute ml-1">TOPLAM BAŞARIM</span>
+            </div>
+          </div>
+          <div class="font-mono text-[10px] tracking-[1px] text-slate-mute mb-2.5">EN NADİR AÇTIKLARIN</div>
+          <div class="flex flex-col gap-2">
+            @for (a of profile?.rarestAchievements ?? []; track a.apiName) {
+              <div
+                class="flex items-center gap-2.5 row-clickable px-1 py-0.5"
+                [title]="a.gameName + (a.unlockTime ? ' · ' + formatDate(a.unlockTime) : '')"
+                (click)="goToGame(a.appid)"
+              >
+                @if (a.capsuleImage || a.headerImage) {
+                  <img
+                    [src]="a.capsuleImage || a.headerImage"
+                    [alt]="a.gameName"
+                    loading="lazy"
+                    class="w-[42px] h-[20px] object-cover rounded border border-panel-line flex-shrink-0"
+                    (error)="$any($event.target).style.display = 'none'"
+                  />
+                }
+                <span class="text-xs text-ghost-white flex-1 truncate">{{ a.displayName }}</span>
+                <span class="font-mono text-[11px] bg-amber-flare text-void-ink px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
+                  %{{ a.globalUnlockPercent }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- NICHE GAUGE -->
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-6 min-h-[260px] flex flex-col anim-panel card-hover" style="animation-delay: 900ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">NİŞ SKORU</div>
+          <div class="flex items-center justify-center flex-1">
+            <app-gauge-chart [value]="gaugeValue" />
+          </div>
+          <div class="font-mono text-[10px] text-slate-mute text-center">
+            Tahmini veridir (SteamSpy), kesin oyuncu sayısı değildir.
+          </div>
+        </div>
+
+        <!-- STUDIOS -->
+        <div class="relative col-span-8 bg-deep-slate border border-panel-line rounded-card p-6 anim-panel card-hover" style="animation-delay: 960ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">EN ÇOK GÜVENDİĞİN STÜDYOLAR</div>
+          <div class="grid grid-cols-5 gap-4">
+            @for (s of topStudios; track s.name) {
+              <div class="flex flex-col gap-1">
+                <div class="font-display font-semibold text-sm">{{ s.name }}</div>
+                <div class="font-mono text-xs text-slate-mute">{{ s.gameCount }} oyun · {{ s.totalHours }} sa</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- PLAYTIME DISTRIBUTION -->
+        <div class="relative col-span-6 bg-deep-slate border border-panel-line rounded-card p-6 anim-panel card-hover" style="animation-delay: 1020ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">OYNAMA SÜRESİ DAĞILIMI</div>
+          <div class="flex flex-col gap-2.5">
+            @for (b of playtimeDistBars; track b.key) {
+              <div class="grid grid-cols-[80px_1fr_40px] items-center gap-3 row-clickable px-1.5 py-1" (click)="openPlaytimeBucket(b.key, b.label + ' oynadıkların')">
+                <div class="font-mono text-[11px] text-slate-mute">{{ b.label }}</div>
+                <div class="h-2 bg-panel-line rounded-full overflow-hidden">
+                  <div class="h-full bg-signal-violet rounded-full anim-bar" [style.width.%]="b.pct"></div>
+                </div>
+                <div class="font-mono text-xs text-right text-signal-violet">{{ b.count }}</div>
+              </div>
+            }
+          </div>
+          <div class="font-mono text-[10px] text-slate-mute mt-3">Bir aralığa tıklayınca o oyunlar listelenir.</div>
+        </div>
+
+        <!-- RECENCY -->
+        <div class="relative col-span-6 bg-deep-slate border border-panel-line rounded-card p-6 anim-panel card-hover" style="animation-delay: 1080ms;">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4">EN SON NE ZAMAN OYNADIN?</div>
+          <div class="flex flex-col gap-2.5">
+            @for (b of recencyBars; track b.key) {
+              <div class="grid grid-cols-[90px_1fr_40px] items-center gap-3 row-clickable px-1.5 py-1" (click)="openRecency(b.key, b.label + ' oynadıkların')">
+                <div class="font-mono text-[11px] text-slate-mute">{{ b.label }}</div>
+                <div class="h-2 bg-panel-line rounded-full overflow-hidden">
+                  <div class="h-full bg-ion-cyan rounded-full anim-bar" [style.width.%]="b.pct"></div>
+                </div>
+                <div class="font-mono text-xs text-right text-ion-cyan">{{ b.count }}</div>
+              </div>
+            }
+          </div>
+          <div class="font-mono text-[10px] text-slate-mute mt-3">Son oynama tarihine göre; hiç oynanmayanlar hariç.</div>
+        </div>
+      </div>
+
+      <!-- GENRE DETAIL -->
+      <div class="mb-16">
+        <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-5">TÜR KIRILIMI — DETAY</div>
+        <div class="flex flex-col gap-3.5">
+          @for (g of genreBreakdown; track g.name; let i = $index) {
+            <div
+              class="grid grid-cols-[140px_1fr_60px] items-center gap-5 bg-deep-slate border border-panel-line rounded-lg px-5 py-4 anim-panel card-hover cursor-pointer"
+              [style.animation-delay.ms]="i * 60"
+              (click)="onGenreRowClick(g.name)"
+            >
+              <div class="font-display font-semibold text-[15px]">{{ g.name }}</div>
+              <div class="h-2 bg-panel-line rounded relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 bg-ion-cyan rounded anim-bar" [style.width.%]="g.pct" [style.animation-delay.ms]="200 + i * 80"></div>
+              </div>
+              <div class="font-mono text-sm text-right text-ion-cyan">%{{ g.pct }}</div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="flex justify-center">
+        <a routerLink="/app" class="bg-ion-cyan text-void-ink font-semibold text-base px-9 py-[18px] rounded-lg no-underline">
+          Bu Profile Göre Öner
+        </a>
+      </div>
+    </div>
+  }
+
+  @if (modalOpen()) {
+    <app-game-list-modal
+      [title]="modalTitle()"
+      [subtitle]="modalSubtitle()"
+      [games]="modalGames()"
+      [total]="modalTotal()"
+      [loading]="modalLoading()"
+      (closed)="closeModal()"
+      (gameSelected)="onModalGameSelected($event)"
+    />
+  }
+</div>

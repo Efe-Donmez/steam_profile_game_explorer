@@ -1,0 +1,249 @@
+@if (modalService.openAppid() !== null) {
+  <!-- backdrop -->
+  <div class="fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm" (click)="close()"></div>
+
+  <!-- centered modal -->
+  <div
+    class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[115] w-[900px] max-w-[94vw] max-h-[88vh] bg-void-ink border border-panel-line rounded-card overflow-y-auto text-ghost-white font-body"
+    style="animation: fade-in-up 250ms cubic-bezier(0.22, 1, 0.36, 1) both;"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      (click)="close()"
+      class="fixed top-4 right-4 md:absolute w-9 h-9 rounded-full bg-void-ink/90 border border-panel-line text-ghost-white cursor-pointer text-base z-10"
+    >
+      ✕
+    </button>
+
+    @if (loading()) {
+      <div class="p-8 flex flex-col gap-4">
+        <div class="skeleton h-[220px] w-full mb-2"></div>
+        <div class="skeleton h-8 w-1/2 mb-2"></div>
+        <div class="grid grid-cols-4 gap-3">
+          <div class="skeleton h-[70px]"></div>
+          <div class="skeleton h-[70px]"></div>
+          <div class="skeleton h-[70px]"></div>
+          <div class="skeleton h-[70px]"></div>
+        </div>
+      </div>
+    } @else if (notFound() || !game()) {
+      <div class="flex flex-col items-center justify-center gap-3 py-24 text-center px-8">
+        <div class="font-display font-bold text-2xl">Oyun bulunamadı</div>
+        <p class="text-slate-mute text-sm max-w-[380px]">Bu appid için ne kütüphanende ne de katalog önbelleğinde bir kayıt var.</p>
+        <button (click)="close()" class="bg-ion-cyan text-void-ink font-semibold text-sm px-5 py-2.5 rounded-lg mt-2 cursor-pointer">Kapat</button>
+      </div>
+    } @else {
+      @let g = game()!;
+
+      <!-- HERO -->
+      <div class="relative h-[220px] overflow-hidden">
+        @if (g.backgroundImage || g.headerImage) {
+          <img [src]="g.backgroundImage || g.headerImage" [alt]="g.name" class="absolute inset-0 w-full h-full object-cover" />
+        }
+        <div class="absolute inset-0" style="background: linear-gradient(to top, #060A14 5%, rgba(6,10,20,0.55) 60%, rgba(6,10,20,0.8) 100%);"></div>
+        <div class="relative z-[1] h-full flex flex-col justify-end px-8 pb-6">
+          <h1 class="font-display font-bold text-[28px] mb-2 anim-panel">{{ g.name }}</h1>
+          <div class="font-mono text-[12px] text-slate-mute anim-panel" style="animation-delay: 60ms;">
+            {{ g.developers.join(', ') || 'Bilinmeyen geliştirici' }}
+            @if (g.publishers.length && g.publishers[0] !== g.developers[0]) {
+              · {{ g.publishers.join(', ') }}
+            }
+            · {{ g.releaseDate ?? g.releaseYear ?? '—' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="px-8 pb-8">
+        <!-- TAGS -->
+        <div class="flex flex-wrap gap-1.5 mt-6 mb-8 anim-panel" style="animation-delay: 90ms;">
+          @for (t of g.genres; track t) {
+            <span class="font-mono text-[10px] text-void-ink bg-ion-cyan rounded-full px-2.5 py-1 font-semibold">{{ t }}</span>
+          }
+          @for (t of g.tags.slice(0, 12); track t) {
+            <span class="font-mono text-[10px] text-slate-mute border border-panel-line rounded-full px-2.5 py-1">{{ t }}</span>
+          }
+        </div>
+
+        <!-- SENİN KAYDIN (kullanıcı verisi — en önemli kısım, en üstte) -->
+        @if (g.owned) {
+          <div class="mb-10 anim-panel" style="animation-delay: 120ms;">
+            <div class="font-mono text-[11px] tracking-[1.5px] text-ion-cyan mb-3">SENİN KAYDIN</div>
+            <div class="grid grid-cols-4 gap-3 mb-5">
+              <div class="relative bg-deep-slate border border-panel-line rounded-card px-4 py-4">
+                <app-corner-brackets />
+                <div class="font-mono text-2xl">{{ g.hours }} sa</div>
+                <div class="font-mono text-[10px] text-slate-mute mt-1">TOPLAM OYNAMA</div>
+              </div>
+              <div class="relative bg-deep-slate border border-panel-line rounded-card px-4 py-4">
+                <app-corner-brackets />
+                <div class="font-mono text-2xl">{{ formatDate(g.lastPlayed) }}</div>
+                <div class="font-mono text-[10px] text-slate-mute mt-1">SON OYNAMA</div>
+              </div>
+              <div class="relative bg-deep-slate border border-panel-line rounded-card px-4 py-4">
+                <app-corner-brackets />
+                <div class="font-mono text-2xl">{{ g.playtime2WeeksMinutes > 0 ? formatMinutesLong(g.playtime2WeeksMinutes) : '—' }}</div>
+                <div class="font-mono text-[10px] text-slate-mute mt-1">SON 2 HAFTA</div>
+              </div>
+              <div class="relative bg-deep-slate border border-panel-line rounded-card px-4 py-4">
+                <app-corner-brackets />
+                <div class="font-mono text-2xl">{{ g.isFree ? 'Ücretsiz' : formatCostPerHour(g.centsPerHour) }}</div>
+                <div class="font-mono text-[10px] text-slate-mute mt-1">DEĞER ({{ cur }}/SAAT)</div>
+              </div>
+            </div>
+
+            <!-- ACHIEVEMENTS -->
+            @if (g.achievementsTotal) {
+              <div class="relative bg-deep-slate border border-panel-line rounded-card p-5">
+                <app-corner-brackets />
+                <div class="flex items-center justify-between mb-3">
+                  <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute">BAŞARIMLAR</div>
+                  <span class="font-mono text-xs text-ion-cyan">{{ g.achievementsUnlocked ?? 0 }}/{{ g.achievementsTotal }} (%{{ achievementPct }})</span>
+                </div>
+                <div class="h-2 bg-panel-line rounded-full overflow-hidden mb-4">
+                  <div class="h-full bg-ion-cyan rounded-full anim-bar" [style.width.%]="achievementPct"></div>
+                </div>
+                <div class="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-1.5">
+                  @for (a of g.allAchievements; track a.apiName) {
+                    <div
+                      class="flex items-center justify-between text-xs px-2 py-1.5 rounded-md"
+                      [class.opacity-40]="!a.achieved"
+                      [style.background]="a.achieved ? 'rgba(76,243,255,0.04)' : 'transparent'"
+                    >
+                      <span class="truncate flex-1">{{ a.displayName }}</span>
+                      <span class="flex items-center gap-2 flex-shrink-0 ml-3">
+                        @if (a.achieved && a.unlockTime) {
+                          <span class="font-mono text-[10px] text-slate-mute">{{ formatDate(a.unlockTime) }}</span>
+                        }
+                        @if (!a.achieved) {
+                          <span class="font-mono text-[10px] text-slate-mute">KİLİTLİ</span>
+                        }
+                        @if (a.globalUnlockPercent !== undefined) {
+                          <span class="font-mono text-[10px] bg-amber-flare text-void-ink px-1.5 py-0.5 rounded-full font-semibold">
+                            %{{ a.globalUnlockPercent }}
+                          </span>
+                        }
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="mb-10 bg-deep-slate border border-panel-line rounded-card px-5 py-4 flex items-center justify-between anim-panel" style="animation-delay: 120ms;">
+            <div class="text-[13px] text-slate-mute">Bu oyuna sahip değilsin — kütüphanende kayıtlı değil.</div>
+            <a routerLink="/app" (click)="close()" class="font-mono text-[11px] text-ion-cyan no-underline border border-panel-line rounded-md px-3 py-2">Önerilerde Ara →</a>
+          </div>
+        }
+
+        <!-- AÇIKLAMA -->
+        @if (g.shortDescription) {
+          <p class="text-[14px] leading-[1.7] text-ghost-white/90 mb-8 m-0 anim-panel" style="animation-delay: 150ms;">{{ g.shortDescription }}</p>
+        }
+
+        <!-- EKRAN GÖRÜNTÜLERİ -->
+        @if (g.screenshots.length > 0) {
+          <div class="mb-10 anim-panel" style="animation-delay: 180ms;">
+            <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">EKRAN GÖRÜNTÜLERİ</div>
+            <div class="grid grid-cols-3 gap-2.5">
+              @for (s of g.screenshots; track s) {
+                <img [src]="s" alt="" loading="lazy" class="w-full h-[110px] object-cover rounded-lg border border-panel-line" />
+              }
+            </div>
+          </div>
+        }
+
+        <!-- MAĞAZA & TOPLULUK -->
+        <div class="mb-10 anim-panel" style="animation-delay: 210ms;">
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">MAĞAZA & TOPLULUK</div>
+          <div class="relative bg-deep-slate border border-panel-line rounded-card p-5 grid grid-cols-2 gap-x-8 gap-y-3 text-[13px]">
+            <app-corner-brackets />
+            <div class="flex justify-between border-b border-panel-line pb-2">
+              <span class="text-slate-mute">Fiyat</span>
+              <span class="font-mono">
+                @if (g.isFree) {
+                  Ücretsiz
+                } @else {
+                  {{ cur }}{{ formatCurrency(g.priceCents) }}
+                  @if (g.discountPercent > 0) {
+                    <span class="text-ion-cyan">(-%{{ g.discountPercent }})</span>
+                  }
+                }
+              </span>
+            </div>
+            @if (g.metacriticScore) {
+              <div class="flex justify-between border-b border-panel-line pb-2">
+                <span class="text-slate-mute">Metacritic</span>
+                <span class="font-mono text-amber-flare">{{ g.metacriticScore }}</span>
+              </div>
+            }
+            @if (g.reviewPositivePercent !== undefined) {
+              <div class="flex justify-between border-b border-panel-line pb-2">
+                <span class="text-slate-mute">Steam yorumları</span>
+                <span class="font-mono">%{{ g.reviewPositivePercent }} olumlu ({{ g.totalReviews }})</span>
+              </div>
+            }
+            @if (g.recommendationsTotal) {
+              <div class="flex justify-between border-b border-panel-line pb-2">
+                <span class="text-slate-mute">Öneren kişi</span>
+                <span class="font-mono">{{ g.recommendationsTotal.toLocaleString('tr-TR') }}</span>
+              </div>
+            }
+            @if (g.controllerSupport) {
+              <div class="flex justify-between border-b border-panel-line pb-2">
+                <span class="text-slate-mute">Kumanda</span>
+                <span class="font-mono">{{ g.controllerSupport === 'full' ? 'Tam destek' : 'Kısmi' }}</span>
+              </div>
+            }
+            @if (g.dlcCount > 0) {
+              <div class="flex justify-between border-b border-panel-line pb-2">
+                <span class="text-slate-mute">DLC</span>
+                <span class="font-mono">{{ g.dlcCount }}</span>
+              </div>
+            }
+            <div class="flex justify-between border-b border-panel-line pb-2">
+              <span class="text-slate-mute">Platformlar</span>
+              <span class="font-mono">
+                {{ g.platforms?.windows ? 'Windows ' : '' }}{{ g.platforms?.mac ? 'macOS ' : '' }}{{ g.platforms?.linux ? 'Linux' : '' }}
+              </span>
+            </div>
+            @if (g.steamSpy) {
+              <div class="flex justify-between border-b border-panel-line pb-2">
+                <span class="text-slate-mute">Tahmini sahip*</span>
+                <span class="font-mono">{{ g.steamSpy.ownersRangeLabel }}</span>
+              </div>
+            }
+          </div>
+          @if (g.steamSpy) {
+            <div class="font-mono text-[9px] text-slate-mute mt-2">*SteamSpy tahmini verisidir, resmi Steam verisi değildir.</div>
+          }
+        </div>
+
+        <!-- KATEGORİLER -->
+        @if (g.categories.length > 0) {
+          <div class="mb-10 anim-panel" style="animation-delay: 240ms;">
+            <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">ÖZELLİKLER</div>
+            <div class="flex flex-wrap gap-1.5">
+              @for (c of g.categories; track c) {
+                <span class="font-mono text-[10px] text-slate-mute border border-panel-line rounded-full px-2.5 py-1">{{ c }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- DIŞ LİNKLER -->
+        <div class="flex gap-2.5 anim-panel" style="animation-delay: 270ms;">
+          <a [href]="steamUrl" target="_blank" rel="noopener" class="flex-1 text-center bg-ion-cyan text-void-ink font-semibold text-[13px] px-3 py-3 rounded-lg no-underline">
+            Steam'de Aç
+          </a>
+          <a [href]="steamDbUrl" target="_blank" rel="noopener" class="flex-1 text-center border border-panel-line text-ghost-white font-mono text-[12px] px-3 py-3 rounded-lg no-underline">
+            SteamDB
+          </a>
+          <a [href]="hltbUrl" target="_blank" rel="noopener" class="flex-1 text-center border border-panel-line text-ghost-white font-mono text-[12px] px-3 py-3 rounded-lg no-underline">
+            HowLongToBeat
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+}

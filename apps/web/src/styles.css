@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-void-ink: #060a14;
+  --color-deep-slate: #0e1524;
+  --color-panel-line: #1b2436;
+  --color-ion-cyan: #4cf3ff;
+  --color-signal-violet: #8b7cf6;
+  --color-amber-flare: #ffb84d;
+  --color-ghost-white: #e9eef5;
+  --color-slate-mute: #7c8aa0;
+  --color-critical-red: #ff4d6d;
+
+  /* Typography */
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Spacing scale (4/8/12/16/24/32/48/64/96/120) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-24: 96px;
+  --spacing-30: 120px;
+
+  /* Shape */
+  --radius-card: 10px;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-void-ink);
+  color: var(--color-ghost-white);
+  font-family: var(--font-body);
+}
+
+/* --- Themed scrollbars (all scrollable surfaces: body, drawers, modals, panels) --- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-panel-line) var(--color-deep-slate);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--color-deep-slate);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-panel-line);
+  border-radius: 8px;
+  border: 2px solid var(--color-deep-slate);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-ion-cyan);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--color-deep-slate);
+}
+
+/* --- Shared animations (Oyun DNA'sı dashboard) --- */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -400px 0;
+  }
+  to {
+    background-position: 400px 0;
+  }
+}
+
+/* Bento panel entrance; stagger with inline animation-delay. */
+.anim-panel {
+  animation: fade-in-up 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Horizontal progress bars (top-15 list, genre breakdown). */
+.anim-bar {
+  transform-origin: left center;
+  animation: grow-x 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 250ms;
+}
+
+/* SVG bars (histogram, timeline): scale from their own baseline. */
+.anim-svg-bar {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: grow-y 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* SVG dots / orbit nodes. */
+.anim-svg-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop-in 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #0e1524 25%, #1b2436 50%, #0e1524 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 10px;
+}
+
+/* Clickable SVG bars/segments (interactive charts). */
+.bar-clickable {
+  cursor: pointer;
+  transition: opacity 150ms ease, filter 150ms ease;
+}
+
+.bar-clickable:hover {
+  opacity: 1 !important;
+  filter: brightness(1.35);
+}
+
+/* Clickable list rows (game lists inside panels). */
+.row-clickable {
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 150ms ease;
+}
+
+.row-clickable:hover {
+  background: rgba(76, 243, 255, 0.06);
+}
+
+/* Bento card hover lift + border glow. */
+.card-hover {
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(76, 243, 255, 0.35);
+  box-shadow: 0 6px 24px rgba(76, 243, 255, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

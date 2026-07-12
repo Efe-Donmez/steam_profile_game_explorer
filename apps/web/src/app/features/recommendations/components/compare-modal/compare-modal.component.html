@@ -1,0 +1,26 @@
+<div class="fixed inset-0 z-[80] flex items-center justify-center p-10" style="background: rgba(6,10,20,0.85);" (click)="close.emit()">
+  <div class="bg-deep-slate border border-panel-line rounded-card p-8 max-w-[800px] w-full" (click)="stopProp($event)">
+    <div class="flex justify-between items-center mb-6">
+      <div class="font-display font-semibold text-xl">Karşılaştırma</div>
+      <div (click)="close.emit()" class="cursor-pointer text-slate-mute text-xl">×</div>
+    </div>
+    <div class="grid grid-cols-[120px_repeat(3,1fr)] gap-1">
+      <div></div>
+      @for (g of games; track g.appid) {
+        <div class="font-display font-semibold text-[13px] text-center p-2">{{ g.name }}</div>
+      }
+      @for (row of rows; track row.label) {
+        <div class="font-mono text-[11px] text-slate-mute px-2 py-2.5 border-t border-panel-line">{{ row.label }}</div>
+        @for (v of row.values; track $index) {
+          <div
+            class="text-center px-2 py-2.5 border-t border-panel-line font-mono text-xs"
+            [style.color]="v.best ? accent : '#E9EEF5'"
+            [style.font-weight]="v.best ? '700' : '400'"
+          >
+            {{ v.text }}
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

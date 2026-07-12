@@ -1,0 +1,173 @@
+<div class="relative min-h-screen bg-void-ink text-ghost-white font-body">
+  <app-scene-background [blobs]="[{ size: 700, color: 'violet', top: '-10%', right: '-10%' }]" />
+
+  <div
+    class="sticky top-0 z-[60] flex items-center justify-between px-10 py-4 backdrop-blur-md border-b border-panel-line"
+    style="background: rgba(6,10,20,0.75);"
+  >
+    <div class="flex items-center gap-2.5">
+      <svg width="22" height="22" viewBox="0 0 26 26">
+        <circle cx="13" cy="13" r="11" fill="none" [attr.stroke]="modeService.accent()" stroke-width="1.5" />
+        <circle cx="13" cy="13" r="2.4" [attr.fill]="modeService.accent()" />
+      </svg>
+      <span class="font-display font-semibold text-[17px]">SteamCompass</span>
+    </div>
+    <a routerLink="/friends" class="text-slate-mute text-[13px] no-underline">← Arkadaşlara Dön</a>
+  </div>
+
+  @if (loading()) {
+    <div class="relative z-10 max-w-[1520px] mx-auto pt-12 px-10 pb-10">
+      <div class="skeleton h-10 w-64 mb-8"></div>
+      <div class="grid grid-cols-12 gap-6">
+        <div class="skeleton col-span-6 h-[420px]"></div>
+        <div class="skeleton col-span-6 h-[420px]"></div>
+      </div>
+    </div>
+  } @else if (notAllowed()) {
+    <div class="relative z-10 max-w-[600px] mx-auto pt-24 px-10 text-center">
+      <p class="text-slate-mute">Bu profili görüntüleme yetkin yok — bu kişi Steam arkadaş listende görünmüyor.</p>
+      <a routerLink="/friends" class="text-ion-cyan no-underline">Arkadaşlara dön</a>
+    </div>
+  } @else {
+    <div class="relative z-10 max-w-[1520px] mx-auto pt-12 px-10 pb-10">
+      <div class="flex items-center gap-4 mb-8">
+        @if (friendMeta?.avatarUrl) {
+          <img [src]="friendMeta!.avatarUrl" [alt]="friendMeta!.personaName" class="w-14 h-14 rounded-full border border-panel-line" />
+        }
+        <div>
+          <div class="font-mono text-[12px] tracking-[1.5px] text-ion-cyan mb-1">ARKADAŞ DNA'SI</div>
+          <h1 class="font-display font-bold text-3xl m-0">{{ friendMeta?.personaName ?? 'Arkadaş' }}'ın Oyun DNA'sı</h1>
+        </div>
+      </div>
+
+      @if (isGuest) {
+        <div class="bg-deep-slate border border-amber-flare/40 rounded-card px-5 py-3.5 mb-8 text-[13px]">
+          <span class="text-amber-flare font-mono text-[11px] tracking-[1.5px] mr-2">MİSAFİR GÖRÜNÜM</span>
+          Bu kişi henüz SteamCompass'e giriş yapmadı — DNA'sı sadece herkese açık Steam kütüphanesinden hesaplandı.
+          Başarım verileri bu yüzden gösterilmiyor.
+        </div>
+      }
+
+      <!-- KPI STRIP -->
+      <div class="grid grid-cols-4 bg-deep-slate border border-panel-line rounded-card overflow-hidden mb-10">
+        <div class="px-[18px] py-5 border-r border-panel-line">
+          <div class="font-mono text-2xl mb-1.5" [appCountUp]="profile?.totalGames ?? 0"></div>
+          <div class="font-mono text-[11px] tracking-[0.5px] text-slate-mute">TOPLAM OYUN</div>
+        </div>
+        <div class="px-[18px] py-5 border-r border-panel-line">
+          <div class="font-mono text-2xl mb-1.5" [appCountUp]="totalHours" [countUpSuffix]="' SA'"></div>
+          <div class="font-mono text-[11px] tracking-[0.5px] text-slate-mute">TOPLAM OYNAMA SÜRESİ</div>
+        </div>
+        <div class="px-[18px] py-5 border-r border-panel-line">
+          <div class="font-mono text-2xl mb-1.5" [appCountUp]="profile?.avgMetacriticPreference ?? 0"></div>
+          <div class="font-mono text-[11px] tracking-[0.5px] text-slate-mute">ORT. METACRITIC PUANI</div>
+        </div>
+        <div class="px-[18px] py-5">
+          <div class="font-mono text-2xl mb-1.5" [appCountUp]="profile?.avgAchievementCompletion ?? 0" [countUpPrefix]="'%'"></div>
+          <div class="font-mono text-[11px] tracking-[0.5px] text-slate-mute">ORT. BAŞARIM TAMAMLAMA</div>
+        </div>
+      </div>
+
+      <!-- DNA PANELS -->
+      <div class="grid grid-cols-12 gap-6 mb-10">
+        <div class="relative col-span-5 bg-deep-slate border border-panel-line rounded-card p-7 min-h-[440px] anim-panel">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-2">TÜR YÖRÜNGESİ</div>
+          <div class="flex items-center justify-center">
+            <app-genre-orbit-chart [items]="genreBreakdown" />
+          </div>
+        </div>
+
+        <div class="relative col-span-4 bg-deep-slate border border-panel-line rounded-card p-7 min-h-[440px] flex flex-col items-center justify-center anim-panel">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4 self-start">OYUN TARZI</div>
+          <app-spider-chart [axes]="spiderAxes" />
+        </div>
+
+        <div class="relative col-span-3 bg-deep-slate border border-panel-line rounded-card p-7 min-h-[440px] flex flex-col items-center justify-center anim-panel">
+          <app-corner-brackets />
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-4 self-start">NİŞ / MAINSTREAM</div>
+          <app-gauge-chart [value]="gaugeValue" />
+        </div>
+      </div>
+
+      <!-- MOST PLAYED -->
+      @if (topGames.length > 0) {
+        <div class="mb-10">
+          <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">EN ÇOK OYNADIĞI OYUNLAR</div>
+          <div class="grid grid-cols-5 gap-4">
+            @for (game of topGames.slice(0, 5); track game.appid) {
+              <a [href]="steamStoreUrl(game.appid)" target="_blank" rel="noopener" class="bg-deep-slate border border-panel-line rounded-card overflow-hidden no-underline text-ghost-white">
+                @if (game.headerImage) {
+                  <img [src]="game.headerImage" [alt]="game.name" class="w-full h-[70px] object-cover" />
+                }
+                <div class="p-2.5">
+                  <div class="text-[12px] font-semibold truncate">{{ game.name }}</div>
+                  <div class="font-mono text-[10px] text-ion-cyan">{{ game.hours }} sa</div>
+                </div>
+              </a>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- RECOMMENDATIONS -->
+      <div class="border-t border-panel-line pt-8">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <h2 class="font-display font-bold text-2xl m-0">{{ friendMeta?.personaName ?? 'Arkadaşının' }}'ın Zevkine Göre Öneriler</h2>
+          <div class="flex items-center gap-3">
+            <div (click)="onModeToggle()" class="px-3.5 py-2 cursor-pointer font-mono text-[11px] rounded-md border" [style.border-color]="modeService.accent()" [style.color]="modeService.accent()">
+              {{ modeService.isAi() ? 'AI DESTEKLİ MOD' : 'ALGORİTMİK MOD' }}
+            </div>
+            <select (change)="onSortChange($event)" class="bg-deep-slate border border-panel-line text-ghost-white font-mono text-xs px-3 py-2 rounded-md">
+              @for (opt of sortOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[340px_1fr] items-start gap-7">
+          <app-filter-panel
+            [(filters)]="filters"
+            [genreFacets]="genreFacets()"
+            [tagFacets]="tagFacets()"
+            [resultCount]="facetTotal()"
+            [currencySymbol]="currencySymbol()"
+            (recompute)="recomputeFromStart()"
+          />
+
+          <div>
+            @if (resultsLoading()) {
+              <div class="flex items-center justify-center py-24 font-mono text-sm tracking-[1px]" [style.color]="modeService.accent()">
+                YÜKLENİYOR...
+              </div>
+            } @else {
+              <div class="grid grid-cols-3 gap-[22px]">
+                @for (game of results(); track game.appid) {
+                  <app-result-card [game]="game" [isAiMode]="modeService.isAi()" [accent]="modeService.accent()" (openQuickView)="openGameInStore(game)" />
+                }
+              </div>
+
+              @if (results().length === 0) {
+                <div class="text-center py-24">
+                  <p class="text-slate-mute text-sm">Bu aralıkta sinyal yok. Filtreleri genişletmeyi dene.</p>
+                </div>
+              } @else if (totalPages() > 1) {
+                <div class="flex items-center justify-center gap-4 mt-9">
+                  <button (click)="goToPage(page() - 1)" [disabled]="page() <= 1" class="font-mono text-[11px] px-3.5 py-2 rounded-md border border-panel-line text-slate-mute disabled:opacity-30 disabled:cursor-not-allowed">
+                    ← ÖNCEKİ
+                  </button>
+                  <span class="font-mono text-[11px] text-slate-mute tracking-[1px]">SAYFA {{ page() }} / {{ totalPages() }}</span>
+                  <button (click)="goToPage(page() + 1)" [disabled]="page() >= totalPages()" class="font-mono text-[11px] px-3.5 py-2 rounded-md border border-panel-line text-slate-mute disabled:opacity-30 disabled:cursor-not-allowed">
+                    SONRAKİ →
+                  </button>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

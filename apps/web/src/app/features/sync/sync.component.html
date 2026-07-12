@@ -1,0 +1,31 @@
+<div class="relative min-h-screen overflow-hidden bg-void-ink text-ghost-white font-body flex items-center justify-center">
+  <app-scene-background [blobs]="[{ size: 600, color: 'cyan', top: '20%', left: '20%' }]" />
+
+  <div class="relative z-10 flex flex-col items-center gap-12">
+    <app-orbit-chart
+      [points]="points"
+      [size]="320"
+      [ringCount]="3"
+      [ringGap]="36"
+      [centerRadius]="14"
+      [showCenterLabel]="false"
+      [showLabels]="false"
+      sweep="continuous"
+      [sweepRadius]="108"
+      [sweepAngleRad]="0.9"
+      [sweepFillOpacity]="0.16"
+    />
+
+    <div class="h-6 flex items-center justify-center">
+      <div class="font-mono text-[15px] tracking-[1px] text-ion-cyan">{{ currentStatus() }}</div>
+    </div>
+
+    <div class="w-80 h-0.5 bg-panel-line rounded-full overflow-hidden relative">
+      <div class="sync-flow absolute top-0 bottom-0 w-20"></div>
+    </div>
+
+    <div class="font-body text-[13px] text-slate-mute text-center max-w-[360px]">
+      Büyük kütüphanelerde bu biraz sürebilir, sekmeyi kapatmadan bekleyebilirsin.
+    </div>
+  </div>
+</div>

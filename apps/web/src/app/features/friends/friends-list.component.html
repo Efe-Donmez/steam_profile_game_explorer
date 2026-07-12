@@ -1,0 +1,78 @@
+<div class="relative min-h-screen bg-void-ink text-ghost-white font-body">
+  <app-scene-background [blobs]="[{ size: 700, color: 'violet', top: '-10%', left: '-10%' }]" />
+
+  <div
+    class="sticky top-0 z-50 flex items-center justify-between px-12 py-5 backdrop-blur-md border-b border-panel-line"
+    style="background: rgba(6,10,20,0.7);"
+  >
+    <div class="flex items-center gap-2.5">
+      <svg width="24" height="24" viewBox="0 0 26 26">
+        <circle cx="13" cy="13" r="11" fill="none" stroke="#4CF3FF" stroke-width="1.5" />
+        <circle cx="13" cy="13" r="2.4" fill="#4CF3FF" />
+      </svg>
+      <span class="font-display font-semibold text-lg">SteamCompass</span>
+    </div>
+    <a routerLink="/profile" class="text-sm text-slate-mute no-underline hover:text-ghost-white">
+      Kendi Profilime Dön
+    </a>
+  </div>
+
+  <div class="relative z-10 max-w-[1100px] mx-auto pt-12 px-10 pb-10">
+    <div class="font-mono text-[13px] tracking-[1.5px] text-ion-cyan mb-3">STEAM ARKADAŞLARI</div>
+    <h1 class="font-display font-bold text-4xl mb-8">Arkadaşların</h1>
+
+    @if (loading()) {
+      <div class="grid grid-cols-3 gap-5">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <div class="skeleton h-[120px] rounded-card"></div>
+        }
+      </div>
+    } @else {
+      @if (joinedFriends.length > 0) {
+        <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">STEAMCOMPASS'TE ({{ joinedFriends.length }})</div>
+        <div class="grid grid-cols-3 gap-5 mb-10">
+          @for (friend of joinedFriends; track friend.steamId) {
+            <a
+              [routerLink]="['/friends', friend.friendUserId]"
+              class="bg-deep-slate border border-panel-line rounded-card p-5 no-underline text-ghost-white flex gap-4 items-center card-hover"
+            >
+              <img [src]="friend.avatarUrl" [alt]="friend.personaName" class="w-14 h-14 rounded-full border border-panel-line" />
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-[15px] truncate">{{ friend.personaName }}</div>
+                <div class="font-mono text-[11px] text-slate-mute truncate">{{ personaStateLabel(friend) }}</div>
+                <div class="font-mono text-[11px] text-ion-cyan mt-1">
+                  {{ friend.totalGames ?? 0 }} oyun · {{ formatHours(friend.totalPlaytimeMinutes) }} sa
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      }
+
+      @if (otherFriends.length > 0) {
+        <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute mb-3">HENÜZ KATILMADI ({{ otherFriends.length }})</div>
+        <div class="grid grid-cols-3 gap-5">
+          @for (friend of otherFriends; track friend.steamId) {
+            <a
+              [routerLink]="['/friends/guest', friend.steamId]"
+              class="bg-deep-slate border border-panel-line rounded-card p-5 no-underline text-ghost-white flex gap-4 items-center card-hover"
+            >
+              <img [src]="friend.avatarUrl" [alt]="friend.personaName" class="w-14 h-14 rounded-full border border-panel-line" />
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-[15px] truncate">{{ friend.personaName }}</div>
+                <div class="font-mono text-[11px] text-slate-mute truncate">{{ personaStateLabel(friend) }}</div>
+                <div class="font-mono text-[10px] text-amber-flare mt-1">Misafir görünüm · SteamCompass'e henüz katılmadı</div>
+              </div>
+            </a>
+          }
+        </div>
+      }
+
+      @if (friends().length === 0) {
+        <div class="text-center py-20 text-slate-mute">
+          Steam arkadaş listen boş görünüyor ya da profilin arkadaş listesi gizli.
+        </div>
+      }
+    }
+  </div>
+</div>

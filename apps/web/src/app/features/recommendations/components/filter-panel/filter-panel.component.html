@@ -1,0 +1,254 @@
+<div class="relative bg-deep-slate border border-panel-line rounded-card p-6 sticky top-[130px]">
+  <app-corner-brackets [color]="modeService.accent()" />
+
+  <div class="flex items-center justify-between mb-4">
+    <div class="font-mono text-[11px] tracking-[1.5px] text-slate-mute">FİLTRELER</div>
+    <div class="flex gap-3">
+      <span (click)="resetFilters()" class="cursor-pointer font-mono text-[10px] text-slate-mute underline">Sıfırla</span>
+      <span (click)="savePreset.emit()" class="cursor-pointer font-mono text-[10px] underline" [style.color]="modeService.accent()">Kaydet</span>
+    </div>
+  </div>
+
+  @if (savedPresets.length > 0) {
+    <div class="flex gap-1.5 flex-wrap mb-5">
+      @for (preset of savedPresets; track preset._id) {
+        <div
+          (click)="selectPreset.emit(preset)"
+          class="font-mono text-[10px] px-2.5 py-1 rounded-full border border-panel-line text-slate-mute cursor-pointer flex items-center gap-1.5"
+        >
+          {{ preset.label }}
+          <span (click)="deletePreset.emit(preset._id); $event.stopPropagation()" class="opacity-60 hover:opacity-100">×</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ARAMA -->
+  <div class="mb-[22px] pb-[22px] border-b border-panel-line">
+    <input
+      type="text"
+      placeholder="Sonuçlarda oyun ara..."
+      [value]="filters().search"
+      (input)="onSearchChange($any($event.target).value)"
+      class="w-full box-border bg-void-ink border border-panel-line rounded-md px-3 py-2.5 text-ghost-white text-[13px] font-body"
+    />
+  </div>
+
+  <!-- GRUP 1: BÜTÇE -->
+  <div class="mb-[22px] pb-[22px] border-b border-panel-line">
+    <div class="text-xs text-slate-mute mb-2">Bütçe</div>
+    <div class="font-mono text-[17px] mb-2.5" [style.color]="modeService.accent()">{{ currencySymbol }}0 — {{ currencySymbol }}{{ priceMaxDisplay }}</div>
+    <input
+      type="range"
+      min="0"
+      max="500"
+      [value]="priceMaxDisplay"
+      (input)="onPriceMaxChange($event)"
+      class="w-full mb-3.5"
+      [style.accent-color]="modeService.accent()"
+    />
+    <div class="flex items-center gap-2 mb-2 cursor-pointer" (click)="toggleDiscountOnly()">
+      <div
+        class="w-4 h-4 rounded border"
+        [style.border-color]="filters().onlyDiscounted ? modeService.accent() : '#1B2436'"
+        [style.background]="filters().onlyDiscounted ? modeService.accent() : 'transparent'"
+      ></div>
+      <span class="text-[13px] text-ghost-white">Sadece indirimde olanlar</span>
+    </div>
+    <div class="flex items-center gap-2 cursor-pointer" (click)="toggleShowFree()">
+      <div
+        class="w-4 h-4 rounded border"
+        [style.border-color]="filters().includeFree ? modeService.accent() : '#1B2436'"
+        [style.background]="filters().includeFree ? modeService.accent() : 'transparent'"
+      ></div>
+      <span class="text-[13px] text-ghost-white">Ücretsiz oyunları da göster</span>
+    </div>
+  </div>
+
+  <!-- GRUP 2: TÜR / TAG -->
+  <div class="mb-[22px] pb-[22px] border-b border-panel-line">
+    <div class="flex border border-panel-line rounded-lg overflow-hidden mb-3.5">
+      <div
+        (click)="activeTab.set('genres')"
+        class="flex-1 text-center py-2 cursor-pointer font-mono text-[11px] font-semibold"
+        [style.background]="activeTab() === 'genres' ? modeService.accent() : 'transparent'"
+        [style.color]="activeTab() === 'genres' ? '#060A14' : '#7C8AA0'"
+      >
+        TÜRLER
+      </div>
+      <div
+        (click)="activeTab.set('tags')"
+        class="flex-1 text-center py-2 cursor-pointer font-mono text-[11px] font-semibold"
+        [style.background]="activeTab() === 'tags' ? modeService.accent() : 'transparent'"
+        [style.color]="activeTab() === 'tags' ? '#060A14' : '#7C8AA0'"
+      >
+        TAG'LER
+      </div>
+    </div>
+
+    @if (activeTab() === 'genres') {
+      <div class="flex gap-2 flex-wrap">
+        @for (g of genreFacets; track g.name) {
+          <div
+            (click)="toggleGenre(g.name)"
+            class="cursor-pointer font-mono text-[11px] px-3 py-1.5 rounded-full border"
+            [style.border-color]="filters().genres.includes(g.name) ? modeService.accent() : '#1B2436'"
+            [style.color]="filters().genres.includes(g.name) ? modeService.accent() : '#7C8AA0'"
+            [style.background]="filters().genres.includes(g.name) ? (modeService.isAi() ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent'"
+          >
+            {{ g.name }} <span class="opacity-60">({{ g.count }})</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <div>
+        <input
+          type="text"
+          placeholder="Tag ara..."
+          [value]="tagSearch()"
+          (input)="tagSearch.set($any($event.target).value)"
+          class="w-full box-border bg-void-ink border border-panel-line rounded-md px-3 py-2 text-ghost-white text-[13px] mb-2.5 font-body"
+        />
+        <div class="max-h-[180px] overflow-y-auto flex flex-col gap-1.5 pr-1">
+          @for (t of filteredTagFacets; track t.name) {
+            <div
+              (click)="toggleTag(t.name)"
+              class="cursor-pointer flex items-center justify-between font-mono text-[11px] px-3 py-1.5 rounded-md border"
+              [style.border-color]="filters().tags.includes(t.name) ? modeService.accent() : '#1B2436'"
+              [style.color]="filters().tags.includes(t.name) ? modeService.accent() : '#7C8AA0'"
+              [style.background]="filters().tags.includes(t.name) ? (modeService.isAi() ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent'"
+            >
+              <span>{{ t.name }}</span><span class="opacity-60">({{ t.count }})</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- GRUP 3: PUAN -->
+  <div class="mb-[22px] pb-[22px] border-b border-panel-line">
+    <div class="flex items-center justify-between mb-2.5">
+      <div class="text-xs text-slate-mute">Minimum Metacritic Puanı</div>
+      <div class="font-mono text-[13px] bg-amber-flare text-void-ink font-semibold px-2 py-0.5 rounded-full">{{ filters().minMetacritic }}+</div>
+    </div>
+    <input
+      type="range"
+      min="0"
+      max="100"
+      step="5"
+      [value]="filters().minMetacritic"
+      (input)="onScoreChange($event)"
+      class="w-full mb-4"
+      [style.accent-color]="modeService.accent()"
+    />
+
+    <div class="text-xs text-slate-mute mb-2.5">Steam Topluluk Yorumu</div>
+    <div class="flex flex-col gap-1.5">
+      @for (r of reviewOptions; track r.value) {
+        <div
+          (click)="selectReviewSentiment(r.value)"
+          class="cursor-pointer font-mono text-[11px] px-3 py-1.5 rounded-md border"
+          [style.border-color]="filters().reviewSentiment === r.value ? modeService.accent() : '#1B2436'"
+          [style.color]="filters().reviewSentiment === r.value ? modeService.accent() : '#7C8AA0'"
+          [style.background]="filters().reviewSentiment === r.value ? (modeService.isAi() ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent'"
+        >
+          {{ r.label }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- GRUP 4: PLATFORM + OYNAMA ŞEKLİ -->
+  <div class="mb-[22px] pb-[22px] border-b border-panel-line">
+    <div class="text-xs text-slate-mute mb-2.5">Platform</div>
+    <div class="flex gap-2 mb-4">
+      @for (p of platformOptions; track p.value) {
+        <div
+          (click)="togglePlatform(p.value)"
+          class="cursor-pointer flex-1 text-center font-mono text-[11px] py-2 rounded-md border"
+          [style.border-color]="filters().platforms.includes(p.value) ? modeService.accent() : '#1B2436'"
+          [style.color]="filters().platforms.includes(p.value) ? modeService.accent() : '#7C8AA0'"
+          [style.background]="filters().platforms.includes(p.value) ? (modeService.isAi() ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent'"
+        >
+          {{ p.label }}
+        </div>
+      }
+    </div>
+    <div class="text-xs text-slate-mute mb-2.5">Oynama Şekli</div>
+    <div class="flex gap-2 flex-wrap">
+      @for (ps of playstyleOptions; track ps.value) {
+        <div
+          (click)="togglePlaystyle(ps.value)"
+          class="cursor-pointer font-mono text-[11px] px-3 py-1.5 rounded-full border"
+          [style.border-color]="filters().playstyle.includes(ps.value) ? modeService.accent() : '#1B2436'"
+          [style.color]="filters().playstyle.includes(ps.value) ? modeService.accent() : '#7C8AA0'"
+          [style.background]="filters().playstyle.includes(ps.value) ? (modeService.isAi() ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent'"
+        >
+          {{ ps.label }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- GRUP 5: ZAMAN -->
+  <div class="mb-[22px] pb-[22px] border-b border-panel-line">
+    <div class="text-xs text-slate-mute mb-2.5">Çıkış Yılı</div>
+    <div class="flex gap-2">
+      @for (y of yearPresets; track y.label) {
+        <div
+          (click)="selectYearPreset(y.min, y.max)"
+          class="cursor-pointer flex-1 text-center font-mono text-[11px] py-2 px-1 rounded-md border"
+          [style.border-color]="isYearPresetActive(y.min, y.max) ? modeService.accent() : '#1B2436'"
+          [style.color]="isYearPresetActive(y.min, y.max) ? modeService.accent() : '#7C8AA0'"
+          [style.background]="isYearPresetActive(y.min, y.max) ? (modeService.isAi() ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent'"
+        >
+          {{ y.label }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- GRUP 6: MOD -->
+  <div
+    class="rounded-lg p-[18px] border"
+    [style.border-color]="modeService.accent()"
+    [style.background]="modeService.isAi() ? 'rgba(139,124,246,0.05)' : 'rgba(76,243,255,0.04)'"
+  >
+    <div class="text-xs text-slate-mute mb-3">Mod</div>
+    <div class="grid grid-cols-2 border border-panel-line rounded-lg overflow-hidden mb-3">
+      <div
+        (click)="modeService.setAlgorithmic()"
+        class="text-center py-3 px-2 cursor-pointer font-mono text-xs font-semibold"
+        [style.background]="!modeService.isAi() ? '#4CF3FF' : 'transparent'"
+        [style.color]="!modeService.isAi() ? '#060A14' : '#7C8AA0'"
+      >
+        ALGORİTMİK
+      </div>
+      <div
+        (click)="modeService.setAiAssisted()"
+        class="text-center py-3 px-2 cursor-pointer font-mono text-xs font-semibold"
+        [style.background]="modeService.isAi() ? '#8B7CF6' : 'transparent'"
+        [style.color]="modeService.isAi() ? '#060A14' : '#7C8AA0'"
+      >
+        AI DESTEKLİ
+      </div>
+    </div>
+    <p class="text-xs text-slate-mute leading-relaxed mb-4 m-0">
+      @if (modeService.isAi()) {
+        Claude, seçtiğin filtreleri ve profil özetini değerlendirip gerekçeli bir sıralama yapar.
+      } @else {
+        Kütüphane verinden çıkardığımız zevk profiline göre sıralanır.
+      }
+    </p>
+    <div
+      (click)="recompute.emit()"
+      class="text-center py-3.5 rounded-lg font-bold tracking-[1px] cursor-pointer font-mono mb-2.5"
+      [style.background]="modeService.accent()"
+      style="color: #060A14;"
+    >
+      ÖNER
+    </div>
+    <div class="text-center font-mono text-[11px] text-slate-mute">Bu filtrelerle tahmini {{ resultCount }} sonuç</div>
+  </div>
+</div>

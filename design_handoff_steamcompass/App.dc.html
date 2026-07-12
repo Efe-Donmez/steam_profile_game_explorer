@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#060A14"/>
+      <circle cx="50" cy="50" r="28" fill="none" stroke="#4CF3FF" stroke-width="2"/>
+    </svg>
+  </template>
+</helmet>
+
+<div style="background:#060A14; color:#E9EEF5; font-family:'Inter',sans-serif; min-height:100vh; position:relative;">
+  <div style="position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: linear-gradient(rgba(76,243,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(76,243,255,0.035) 1px, transparent 1px);
+    background-size: 48px 48px;"></div>
+
+  <!-- NAVBAR -->
+  <div style="position:sticky; top:0; z-index:60; display:flex; align-items:center; justify-content:space-between; padding:16px 40px; backdrop-filter:blur(14px); background:rgba(6,10,20,0.75); border-bottom:1px solid #1B2436;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 26 26"><circle cx="13" cy="13" r="11" fill="none" stroke="{{ accent }}" stroke-width="1.5"/><circle cx="13" cy="13" r="2.4" fill="{{ accent }}"/></svg>
+      <span style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:17px;">SteamCompass</span>
+    </div>
+    <a href="Profile.dc.html" style="color:#7C8AA0; font-size:13px; text-decoration:none;">Oyun DNA'na Dön</a>
+  </div>
+
+  <!-- CONTEXT STRIP -->
+  <div style="position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; padding:14px 40px; border-bottom:1px solid #1B2436; background:#0A0F1C;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7C8AA0; letter-spacing:0.5px;">
+      <a href="Profile.dc.html" style="color:#7C8AA0; text-decoration:none;">OYUN DNA'N</a> <span style="color:#39465F;">→</span> <span style="color:{{ accent }};">ÖNERİLER</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:12px; color:#7C8AA0;">Profiline göre:</span>
+      <a href="Profile.dc.html" style="font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid {{ accent }}; color:{{ accent }}; text-decoration:none;">Strateji %32</a>
+      <a href="Profile.dc.html" style="font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid {{ accent }}; color:{{ accent }}; text-decoration:none;">RPG %26</a>
+    </div>
+    <a href="Sync.dc.html" style="display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7C8AA0; text-decoration:none; border:1px solid #1B2436; border-radius:6px; padding:8px 12px;">
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1 A5 5 0 1 1 1.5 3.5" fill="none" stroke="#7C8AA0" stroke-width="1.3"/><path d="M1.5 0.5 L1.5 3.5 L4.5 3.5" fill="none" stroke="#7C8AA0" stroke-width="1.3"/></svg>
+      Profili Yeniden Tara
+    </a>
+  </div>
+
+  <div style="position:relative; z-index:1; display:grid; grid-template-columns:360px 1fr; align-items:start; max-width:1600px; margin:0 auto;">
+
+    <!-- FILTER PANEL -->
+    <div style="position:relative; background:#0E1524; border:1px solid #1B2436; border-radius:10px; margin:28px 0 40px 28px; padding:24px; position:sticky; top:130px;">
+      {{ cornerBrackets }}
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#7C8AA0;">FİLTRELER</div>
+        <div style="display:flex; gap:12px;">
+          <span onClick="{{ resetFilters }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#7C8AA0; text-decoration:underline;">Sıfırla</span>
+          <span onClick="{{ saveFilter }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10px; color:{{ accent }}; text-decoration:underline;">Kaydet</span>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasSavedFilters }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px;">
+          <sc-for list="{{ savedFilters }}" as="sf" hint-placeholder-count="2">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:5px 10px; border-radius:999px; border:1px solid #1B2436; color:#7C8AA0;">{{ sf }}</div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- GRUP 1: BÜTÇE -->
+      <div style="margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid #1B2436;">
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:8px;">Bütçe</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:17px; color:{{ accent }}; margin-bottom:10px;">₺0 — ₺{{ priceMax }}</div>
+        <input type="range" min="0" max="500" value="{{ priceMax }}" onChange="{{ onPriceChange }}" style="width:100%; accent-color:{{ accent }}; margin-bottom:14px;" />
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer;" onClick="{{ toggleDiscountOnly }}">
+          <div style="width:16px; height:16px; border-radius:4px; border:1px solid {{ discountOnly ? accent : '#1B2436' }}; background:{{ discountOnly ? accent : 'transparent' }};"></div>
+          <span style="font-size:13px; color:#E9EEF5;">Sadece indirimde olanlar</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onClick="{{ toggleShowFree }}">
+          <div style="width:16px; height:16px; border-radius:4px; border:1px solid {{ showFree ? accent : '#1B2436' }}; background:{{ showFree ? accent : 'transparent' }};"></div>
+          <span style="font-size:13px; color:#E9EEF5;">Ücretsiz oyunları da göster</span>
+        </div>
+      </div>
+
+      <!-- GRUP 2: TÜR / TAG -->
+      <div style="margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid #1B2436;">
+        <div style="display:flex; border:1px solid #1B2436; border-radius:8px; overflow:hidden; margin-bottom:14px;">
+          <div onClick="{{ setTabGenres }}" style="flex:1; text-align:center; padding:9px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; background:{{ genreTabBg }}; color:{{ genreTabText }};">TÜRLER</div>
+          <div onClick="{{ setTabTags }}" style="flex:1; text-align:center; padding:9px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; background:{{ tagTabBg }}; color:{{ tagTabText }};">TAG'LER</div>
+        </div>
+
+        <sc-if value="{{ isGenreTab }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <sc-for list="{{ genreOptions }}" as="g" hint-placeholder-count="7">
+              <div onClick="{{ g.toggle }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:7px 12px; border-radius:999px; border:1px solid {{ g.borderColor }}; color:{{ g.textColor }}; background:{{ g.bg }};">{{ g.name }} <span style="opacity:0.6;">({{ g.count }})</span></div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTagTab }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <input type="text" placeholder="Tag ara..." value="{{ tagSearch }}" onChange="{{ onTagSearch }}" style="width:100%; box-sizing:border-box; background:#060A14; border:1px solid #1B2436; border-radius:6px; padding:9px 12px; color:#E9EEF5; font-size:13px; margin-bottom:10px; font-family:'Inter',sans-serif;" />
+            <div style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding-right:4px;">
+              <sc-for list="{{ tagOptions }}" as="t" hint-placeholder-count="6">
+                <div onClick="{{ t.toggle }}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:7px 12px; border-radius:6px; border:1px solid {{ t.borderColor }}; color:{{ t.textColor }}; background:{{ t.bg }};">
+                  <span>{{ t.name }}</span><span style="opacity:0.6;">({{ t.count }})</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- GRUP 3: PUAN -->
+      <div style="margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid #1B2436;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div style="font-size:12px; color:#7C8AA0;">Minimum Metacritic Puanı</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#FFB84D; color:#060A14; font-weight:600; padding:2px 8px; border-radius:999px;">{{ minScore }}+</div>
+        </div>
+        <input type="range" min="0" max="100" step="5" value="{{ minScore }}" onChange="{{ onScoreChange }}" style="width:100%; accent-color:{{ accent }}; margin-bottom:16px;" />
+
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:10px;">Steam Topluluk Yorumu</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <sc-for list="{{ reviewOptions }}" as="r" hint-placeholder-count="4">
+            <div onClick="{{ r.select }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:7px 12px; border-radius:6px; border:1px solid {{ r.borderColor }}; color:{{ r.textColor }}; background:{{ r.bg }};">{{ r.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- GRUP 4: PLATFORM + OYNAMA ŞEKLİ -->
+      <div style="margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid #1B2436;">
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:10px;">Platform</div>
+        <div style="display:flex; gap:8px; margin-bottom:16px;">
+          <sc-for list="{{ platformOptions }}" as="p" hint-placeholder-count="3">
+            <div onClick="{{ p.toggle }}" style="cursor:pointer; flex:1; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:9px; border-radius:6px; border:1px solid {{ p.borderColor }}; color:{{ p.textColor }}; background:{{ p.bg }};">{{ p.name }}</div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:10px;">Oynama Şekli</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <sc-for list="{{ playstyleOptions }}" as="ps" hint-placeholder-count="6">
+            <div onClick="{{ ps.toggle }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:7px 12px; border-radius:999px; border:1px solid {{ ps.borderColor }}; color:{{ ps.textColor }}; background:{{ ps.bg }};">{{ ps.name }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- GRUP 5: ZAMAN -->
+      <div style="margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid #1B2436;">
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:10px;">Çıkış Yılı</div>
+        <div style="display:flex; gap:8px;">
+          <sc-for list="{{ yearPresets }}" as="y" hint-placeholder-count="3">
+            <div onClick="{{ y.select }}" style="cursor:pointer; flex:1; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:9px 4px; border-radius:6px; border:1px solid {{ y.borderColor }}; color:{{ y.textColor }}; background:{{ y.bg }};">{{ y.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- GRUP 6: MOD -->
+      <div style="border:1px solid {{ accent }}; border-radius:8px; padding:18px; background:{{ modePanelBg }};">
+        <div style="font-size:12px; color:#7C8AA0; margin-bottom:12px;">Mod</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; border:1px solid #1B2436; border-radius:8px; overflow:hidden; margin-bottom:12px;">
+          <div onClick="{{ setAlgoMode }}" style="text-align:center; padding:12px 8px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; background:{{ algoBg }}; color:{{ algoText }};">ALGORİTMİK</div>
+          <div onClick="{{ setAiMode }}" style="text-align:center; padding:12px 8px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; background:{{ aiBg }}; color:{{ aiText }};">AI DESTEKLİ</div>
+        </div>
+        <p style="font-size:12px; color:#7C8AA0; line-height:1.6; margin:0 0 16px 0;">{{ modeDescription }}</p>
+        <div onClick="{{ recompute }}" style="text-align:center; padding:14px; border-radius:8px; background:{{ accent }}; color:#060A14; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:'IBM Plex Mono',monospace; margin-bottom:10px;">ÖNER</div>
+        <div style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7C8AA0;">Bu filtrelerle tahmini {{ resultCount }} sonuç</div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div style="padding:28px 28px 120px 28px;">
+
+      <!-- TOOLBAR -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#7C8AA0; letter-spacing:1px;">{{ resultCount }} SONUÇ · {{ modeLabel }}</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <select onChange="{{ onSortChange }}" style="background:#0E1524; border:1px solid #1B2436; color:#E9EEF5; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:9px 12px; border-radius:6px;">
+            <option>İlişkiye Göre</option>
+            <option>Puana Göre</option>
+            <option>Fiyata Göre (Artan)</option>
+            <option>Fiyata Göre (Azalan)</option>
+            <option>Çıkış Tarihine Göre (Yeni)</option>
+            <option>İndirim Oranına Göre</option>
+          </select>
+          <div style="display:flex; border:1px solid #1B2436; border-radius:6px; overflow:hidden;">
+            <div onClick="{{ setGridView }}" style="padding:9px 14px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; background:{{ gridViewBg }}; color:{{ gridViewText }};">GRID</div>
+            <div onClick="{{ setListView }}" style="padding:9px 14px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; background:{{ listViewBg }}; color:{{ listViewText }};">LİSTE</div>
+          </div>
+          <div onClick="{{ toggleCompareMode }}" style="padding:9px 14px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; border-radius:6px; border:1px solid {{ compareMode ? accent : '#1B2436' }}; color:{{ compareMode ? accent : '#7C8AA0' }};">KARŞILAŞTIR</div>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasFilterNote }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B7CF6; border:1px solid rgba(139,124,246,0.35); background:rgba(139,124,246,0.06); border-radius:6px; padding:10px 14px; margin-bottom:18px;">{{ filterNote }}</div>
+      </sc-if>
+
+      <!-- GRID -->
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;">
+        <sc-for list="{{ results }}" as="game" hint-placeholder-count="6">
+          <div style="position:relative; background:#0E1524; border:1px solid #1B2436; border-radius:10px; overflow:hidden;">
+            {{ cornerBrackets }}
+
+            <div onClick="{{ game.toggleCompare }}" style="position:absolute; top:12px; left:12px; z-index:2; width:20px; height:20px; border-radius:4px; border:1.5px solid {{ game.compareSelected ? accent : 'rgba(255,255,255,0.4)' }}; background:{{ game.compareSelected ? accent : 'rgba(6,10,20,0.5)' }}; cursor:pointer;"></div>
+            <div onClick="{{ game.toggleSave }}" style="position:absolute; top:12px; right:12px; z-index:2; width:26px; height:26px; border-radius:50%; background:rgba(6,10,20,0.6); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+              <svg width="13" height="13" viewBox="0 0 13 13"><path d="M6.5 1 L8 4.5 L11.5 5 L9 7.5 L9.7 11 L6.5 9.3 L3.3 11 L4 7.5 L1.5 5 L5 4.5 Z" fill="{{ game.saved ? '#FFB84D' : 'none' }}" stroke="{{ game.saved ? '#FFB84D' : '#7C8AA0' }}" stroke-width="1"/></svg>
+            </div>
+            <sc-if value="{{ game.discount }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute; top:12px; left:40px; z-index:2; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; background:#FFB84D; color:#060A14; padding:3px 8px; border-radius:4px;">-%{{ game.discount }}</div>
+            </sc-if>
+
+            <div style="height:140px; background:{{ game.coverBg }}; display:flex; align-items:center; justify-content:center; padding:16px;">
+              <span style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:18px; color:rgba(255,255,255,0.9); text-align:center;">{{ game.name }}</span>
+            </div>
+            <div style="padding:16px;">
+              <div style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:15px;">{{ game.name }}</div>
+              <div style="font-size:11px; color:#7C8AA0; margin-bottom:10px;">{{ game.developer }}</div>
+
+              <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:3px 9px; border-radius:999px; border:1px solid {{ accent }}; color:{{ accent }};">{{ game.genre }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:3px 9px; border-radius:999px; border:1px solid #39465F; color:#7C8AA0;">{{ game.tag }}</span>
+              </div>
+
+              <div style="display:flex; gap:10px; margin-bottom:12px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#7C8AA0;">
+                <span>{{ game.platforms }}</span>
+                <sc-if value="{{ game.coop }}" hint-placeholder-val="{{ false }}"><span>· CO-OP</span></sc-if>
+                <sc-if value="{{ game.controller }}" hint-placeholder-val="{{ false }}"><span>· KUMANDA</span></sc-if>
+              </div>
+
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:14px;">
+                  <sc-if value="{{ game.discount }}" hint-placeholder-val="{{ false }}">
+                    <span style="text-decoration:line-through; color:#7C8AA0; margin-right:6px;">₺{{ game.origPrice }}</span>
+                  </sc-if>
+                  <span style="color:#E9EEF5;">₺{{ game.price }}</span>
+                </span>
+                <div style="display:flex; gap:6px;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; background:#FFB84D; color:#060A14; padding:3px 9px; border-radius:999px;">{{ game.score }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; border:1px solid #39465F; color:#7C8AA0; padding:3px 9px; border-radius:999px;">{{ game.reviewLabel }}</span>
+                </div>
+              </div>
+            </div>
+
+            <sc-if value="{{ isAiMode }}" hint-placeholder-val="{{ false }}">
+              <div style="margin:0 16px 16px 16px; padding:12px 14px; border-radius:8px; border:1px solid rgba(139,124,246,0.35); background:rgba(139,124,246,0.06);">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#8B7CF6; margin-bottom:6px;">GEREKÇE</div>
+                <p style="font-size:12px; line-height:1.5; color:#E9EEF5; margin:0 0 8px 0;">{{ game.reason }}</p>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#8B7CF6; border:1px solid rgba(139,124,246,0.35); padding:2px 7px; border-radius:999px;">TÜR EŞLEŞMESİ</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#8B7CF6; border:1px solid rgba(139,124,246,0.35); padding:2px 7px; border-radius:999px;">FİYAT UYUMU</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#8B7CF6; border:1px solid rgba(139,124,246,0.35); padding:2px 7px; border-radius:999px;">PUAN</span>
+                </div>
+              </div>
+            </sc-if>
+
+            <div onClick="{{ game.openQuickView }}" style="text-align:center; padding:10px; border-top:1px solid #1B2436; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; color:{{ accent }};">Hızlı Bakış</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE BAR -->
+  <sc-if value="{{ showCompareBar }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:0; left:0; right:0; z-index:70; background:#0E1524; border-top:1px solid {{ accent }}; padding:16px 40px; display:flex; align-items:center; justify-content:space-between;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0;">{{ compareCount }} / 3 oyun seçildi</div>
+      <div onClick="{{ openCompareTable }}" style="background:{{ accent }}; color:#060A14; font-weight:700; padding:10px 22px; border-radius:8px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:12px;">Karşılaştır</div>
+    </div>
+  </sc-if>
+
+  <!-- COMPARE TABLE MODAL -->
+  <sc-if value="{{ showCompareTable }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:80; background:rgba(6,10,20,0.85); display:flex; align-items:center; justify-content:center; padding:40px;" onClick="{{ closeCompareTable }}">
+      <div style="background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:32px; max-width:800px; width:100%;" onClick="{{ stopProp }}">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <div style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:20px;">Karşılaştırma</div>
+          <div onClick="{{ closeCompareTable }}" style="cursor:pointer; color:#7C8AA0; font-size:20px;">×</div>
+        </div>
+        <div style="display:grid; grid-template-columns:120px repeat(3, 1fr); gap:4px;">
+          <div></div>
+          <sc-for list="{{ compareGames }}" as="cg" hint-placeholder-count="3">
+            <div style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:13px; text-align:center; padding:8px;">{{ cg.name }}</div>
+          </sc-for>
+          <sc-for list="{{ compareRows }}" as="row" hint-placeholder-count="6">
+            <div style="display:contents;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7C8AA0; padding:10px 8px; border-top:1px solid #1B2436;">{{ row.label }}</div>
+              <sc-for list="{{ row.values }}" as="v" hint-placeholder-count="3">
+                <div style="text-align:center; padding:10px 8px; border-top:1px solid #1B2436; font-family:'IBM Plex Mono',monospace; font-size:12px; color:{{ v.best ? accent : '#E9EEF5' }}; font-weight:{{ v.best ? '700' : '400' }};">{{ v.text }}</div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- QUICK VIEW DRAWER -->
+  <sc-if value="{{ quickViewGame }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:90; background:rgba(6,10,20,0.6);" onClick="{{ closeQuickView }}">
+      <div style="position:absolute; top:0; right:0; bottom:0; width:420px; background:#0E1524; border-left:1px solid #1B2436; padding:32px; overflow-y:auto;" onClick="{{ stopProp }}">
+        <div onClick="{{ closeQuickView }}" style="cursor:pointer; color:#7C8AA0; font-size:22px; margin-bottom:20px; text-align:right;">×</div>
+        <div style="height:160px; background:{{ quickViewCoverBg }}; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+          <span style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:20px; color:rgba(255,255,255,0.9);">{{ quickViewName }}</span>
+        </div>
+        <div style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:22px; margin-bottom:8px;">{{ quickViewName }}</div>
+        <p style="font-size:13px; color:#7C8AA0; line-height:1.6; margin:0 0 20px 0;">{{ quickViewDesc }}</p>
+        <div style="display:flex; gap:8px; margin-bottom:24px;">
+          <div style="flex:1; height:60px; background:#060A14; border-radius:6px; border:1px solid #1B2436;"></div>
+          <div style="flex:1; height:60px; background:#060A14; border-radius:6px; border:1px solid #1B2436;"></div>
+          <div style="flex:1; height:60px; background:#060A14; border-radius:6px; border:1px solid #1B2436;"></div>
+        </div>
+        <div style="border:1px solid rgba(139,124,246,0.3); background:rgba(139,124,246,0.06); border-radius:8px; padding:14px; margin-bottom:24px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8B7CF6; letter-spacing:1px; margin-bottom:6px;">BU NEDEN ÖNERİLDİ</div>
+          <p style="font-size:13px; color:#E9EEF5; line-height:1.5; margin:0;">{{ quickViewReason }}</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; text-align:center; padding:12px; border:1px solid #1B2436; border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#E9EEF5;">Steam'de Görüntüle</div>
+          <div style="flex:1; text-align:center; padding:12px; background:{{ accent }}; border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#060A14; font-weight:600;">Kaydet</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- AI DIALOG BAR -->
+  <sc-if value="{{ isAiMode }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:0; left:0; right:0; z-index:65; background:rgba(14,21,36,0.95); backdrop-filter:blur(10px); border-top:1px solid rgba(139,124,246,0.4); padding:14px 40px;">
+      <div style="max-width:900px; margin:0 auto;">
+        <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+          <sc-for list="{{ aiSuggestions }}" as="sug" hint-placeholder-count="3">
+            <div onClick="{{ sug.use }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid rgba(139,124,246,0.4); color:#8B7CF6;">{{ sug.text }}</div>
+          </sc-for>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <input type="text" placeholder="Sonuçları daraltmak için bir şey söyle..." value="{{ aiInput }}" onChange="{{ onAiInputChange }}" style="flex:1; background:#060A14; border:1px solid rgba(139,124,246,0.4); border-radius:8px; padding:12px 16px; color:#E9EEF5; font-size:13px; font-family:'Inter',sans-serif;" />
+          <div onClick="{{ submitAi }}" style="background:#8B7CF6; color:#060A14; font-weight:600; padding:12px 22px; border-radius:8px; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:12px;">Gönder</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    mode: 'algo',
+    priceMax: 350,
+    discountOnly: false,
+    showFree: false,
+    activeTab: 'genres',
+    activeGenres: { 'Strateji': true, 'RPG': true },
+    activeTags: {},
+    tagSearch: '',
+    minScore: 70,
+    reviewSegment: 0,
+    activePlatforms: { 'Windows': true },
+    activePlaystyles: {},
+    yearPreset: 2,
+    view: 'grid',
+    compareMode: false,
+    compareSelected: {},
+    savedGames: {},
+    showCompareTable: false,
+    quickViewGame: null,
+    aiInput: '',
+    filterNote: '',
+  };
+
+  cornerBracket(top, left) {
+    const style = {
+      position: 'absolute', width: '12px', height: '12px',
+      [top ? 'top' : 'bottom']: '8px', [left ? 'left' : 'right']: '8px',
+      borderTop: top ? '1.5px solid #4CF3FF' : 'none',
+      borderBottom: !top ? '1.5px solid #4CF3FF' : 'none',
+      borderLeft: left ? '1.5px solid #4CF3FF' : 'none',
+      borderRight: !left ? '1.5px solid #4CF3FF' : 'none',
+      opacity: 0.5,
+    };
+    return React.createElement('div', { style });
+  }
+
+  toggleMapKey(mapName, key) {
+    this.setState(s => ({ [mapName]: { ...s[mapName], [key]: !s[mapName][key] } }));
+  }
+
+  renderVals() {
+    const isAi = this.state.mode === 'ai';
+    const accent = isAi ? '#8B7CF6' : '#4CF3FF';
+    const isGenreTab = this.state.activeTab === 'genres';
+
+    const games = [
+      { name:'Iron Vanguard', developer:'Frostwind Studios', genre:'Strateji', tag:'Base-building', price:219, origPrice:329, discount:34, score:88, reviewLabel:'Çok Olumlu', platforms:'WIN/MAC', coop:false, controller:true, cover:'135deg,#1B2436,#0E1524', reason:'Strateji ağırlıklı profiline ve 80+ puan tercihine uygun, düşük fiyat aralığında.' },
+      { name:'Ashen Hollow', developer:'Ledger Games', genre:'RPG', tag:'Souls-like', price:149, origPrice:149, discount:0, score:91, reviewLabel:'Muhteşem', platforms:'WIN', coop:false, controller:true, cover:'135deg,#26314a,#0E1524', reason:'RPG oynama sürene çok yakın bir tür dağılımına sahip.' },
+      { name:'Wintercall Tactics', developer:'Hollow Peak', genre:'Strateji', tag:'Turn-Based', price:299, origPrice:299, discount:0, score:84, reviewLabel:'Çok Olumlu', platforms:'WIN/LNX', coop:true, controller:false, cover:'135deg,#1e2b40,#0e1524', reason:'En çok oynadığın strateji alt türüyle örtüşüyor.' },
+      { name:'Nova Drift', developer:'Driftworks', genre:'Rogue-like', tag:'Roguelite', price:89, origPrice:129, discount:31, score:90, reviewLabel:'Muhteşem', platforms:'WIN/MAC/LNX', coop:false, controller:true, cover:'135deg,#25203f,#0E1524', reason:'Kısa oturumlu rogue-like tercihine uygun.' },
+      { name:'Silent Meridian', developer:'Meridian Interactive', genre:'RPG', tag:'Story Rich', price:259, origPrice:259, discount:0, score:86, reviewLabel:'Çok Olumlu', platforms:'WIN', coop:false, controller:false, cover:'135deg,#1b2436,#0E1524', reason:'Anlatı ağırlıklı RPG geçmişine yakın.' },
+      { name:'Frontier Ledger', developer:'Ledger Games', genre:'Simülasyon', tag:'Base-building', price:179, origPrice:229, discount:22, score:79, reviewLabel:'Olumlu', platforms:'WIN/MAC', coop:true, controller:false, cover:'135deg,#223349,#0E1524', reason:'Yönetim simülasyonu geçmişine uygun, bütçe aralığında.' },
+    ];
+
+    const results = games.map((g, i) => ({
+      ...g,
+      coverBg: `linear-gradient(${g.cover})`,
+      compareSelected: !!this.state.compareSelected[g.name],
+      saved: !!this.state.savedGames[g.name],
+      toggleCompare: () => this.toggleMapKey('compareSelected', g.name),
+      toggleSave: () => this.toggleMapKey('savedGames', g.name),
+      openQuickView: () => this.setState({ quickViewGame: g }),
+    }));
+
+    const genreDefs = [
+      { name:'Strateji', count:34 }, { name:'RPG', count:28 }, { name:'FPS', count:15 },
+      { name:'Rogue-like', count:19 }, { name:'Simülasyon', count:11 }, { name:'Puzzle', count:9 }, { name:'Aksiyon', count:22 },
+    ];
+    const tagDefs = [
+      { name:'Souls-like', count:12 }, { name:'Cozy', count:8 }, { name:'Metroidvania', count:10 },
+      { name:'Base-building', count:14 }, { name:'Roguelite', count:16 }, { name:'Turn-Based', count:9 }, { name:'Story Rich', count:7 },
+    ].filter(t => t.name.toLowerCase().includes(this.state.tagSearch.toLowerCase()));
+
+    const mkChip = (name, count, mapName) => {
+      const on = !!this.state[mapName][name];
+      return {
+        name, count,
+        toggle: () => this.toggleMapKey(mapName, name),
+        borderColor: on ? accent : '#1B2436',
+        textColor: on ? accent : '#7C8AA0',
+        bg: on ? (isAi ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent',
+      };
+    };
+
+    const reviewLabels = ['Fark Etmez', 'En Az Olumlu', 'En Az Çok Olumlu', 'Sadece Muhteşem'];
+    const platformNames = ['Windows', 'Mac', 'Linux'];
+    const playstyleNames = ['Tek Oyunculu', 'Çok Oyunculu', 'Co-op', 'Kumanda Desteği', 'Başarımlar Var', 'Bulut Kayıt'];
+    const yearPresetLabels = ['Son 1 Yıl', 'Son 5 Yıl', 'Tüm Zamanlar'];
+
+    const compareList = results.filter(r => r.compareSelected).slice(0, 3);
+    const compareRows = compareList.length ? [
+      { label: 'Fiyat', key: 'price', lowerBetter: true },
+      { label: 'Puan', key: 'score', lowerBetter: false },
+      { label: 'Tür', key: 'genre', text: true },
+      { label: 'Çıkış Yılı', key: 'genre', text: true, fixed: '2023' },
+      { label: 'Platform', key: 'platforms', text: true },
+    ].map(row => {
+      if (row.text) {
+        return { label: row.label, values: compareList.map(g => ({ text: row.fixed || g[row.key], best: false })) };
+      }
+      const vals = compareList.map(g => g[row.key]);
+      const bestVal = row.lowerBetter ? Math.min(...vals) : Math.max(...vals);
+      return { label: row.label, values: compareList.map(g => ({ text: row.key === 'price' ? `₺${g[row.key]}` : g[row.key], best: g[row.key] === bestVal })) };
+    }) : [];
+
+    return {
+      accent,
+      isAiMode: isAi,
+      cornerBrackets: React.createElement(React.Fragment, null,
+        this.cornerBracket(true,true), this.cornerBracket(true,false),
+        this.cornerBracket(false,true), this.cornerBracket(false,false)
+      ),
+
+      priceMax: this.state.priceMax,
+      onPriceChange: (e) => this.setState({ priceMax: Number(e.target.value) }),
+      discountOnly: this.state.discountOnly,
+      toggleDiscountOnly: () => this.setState(s => ({ discountOnly: !s.discountOnly })),
+      showFree: this.state.showFree,
+      toggleShowFree: () => this.setState(s => ({ showFree: !s.showFree })),
+
+      isGenreTab, isTagTab: !isGenreTab,
+      setTabGenres: () => this.setState({ activeTab: 'genres' }),
+      setTabTags: () => this.setState({ activeTab: 'tags' }),
+      genreTabBg: isGenreTab ? accent : 'transparent', genreTabText: isGenreTab ? '#060A14' : '#7C8AA0',
+      tagTabBg: !isGenreTab ? accent : 'transparent', tagTabText: !isGenreTab ? '#060A14' : '#7C8AA0',
+      genreOptions: genreDefs.map(g => mkChip(g.name, g.count, 'activeGenres')),
+      tagOptions: tagDefs.map(t => mkChip(t.name, t.count, 'activeTags')),
+      tagSearch: this.state.tagSearch,
+      onTagSearch: (e) => this.setState({ tagSearch: e.target.value }),
+
+      minScore: this.state.minScore,
+      onScoreChange: (e) => this.setState({ minScore: Number(e.target.value) }),
+      reviewOptions: reviewLabels.map((label, i) => ({
+        label,
+        select: () => this.setState({ reviewSegment: i }),
+        borderColor: this.state.reviewSegment === i ? accent : '#1B2436',
+        textColor: this.state.reviewSegment === i ? accent : '#7C8AA0',
+        bg: this.state.reviewSegment === i ? (isAi ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent',
+      })),
+
+      platformOptions: platformNames.map(name => mkChip(name, null, 'activePlatforms')).map(p => ({ ...p })),
+      playstyleOptions: playstyleNames.map(name => mkChip(name, null, 'activePlaystyles')),
+
+      yearPresets: yearPresetLabels.map((label, i) => ({
+        label,
+        select: () => this.setState({ yearPreset: i }),
+        borderColor: this.state.yearPreset === i ? accent : '#1B2436',
+        textColor: this.state.yearPreset === i ? accent : '#7C8AA0',
+        bg: this.state.yearPreset === i ? (isAi ? 'rgba(139,124,246,0.1)' : 'rgba(76,243,255,0.1)') : 'transparent',
+      })),
+
+      setAlgoMode: () => this.setState({ mode: 'algo' }),
+      setAiMode: () => this.setState({ mode: 'ai' }),
+      algoBg: !isAi ? '#4CF3FF' : 'transparent', algoText: !isAi ? '#060A14' : '#7C8AA0',
+      aiBg: isAi ? '#8B7CF6' : 'transparent', aiText: isAi ? '#060A14' : '#7C8AA0',
+      modePanelBg: isAi ? 'rgba(139,124,246,0.05)' : 'rgba(76,243,255,0.04)',
+      modeDescription: isAi
+        ? "Claude, seçtiğin filtreleri ve profil özetini değerlendirip gerekçeli bir sıralama yapar."
+        : 'Kütüphane verinden çıkardığımız zevk profiline göre sıralanır.',
+      recompute: () => this.forceUpdate(),
+
+      hasSavedFilters: true,
+      savedFilters: ['UCUZ & YÜKSEK PUAN', 'HAFTA SONU LİSTESİ'],
+      resetFilters: () => this.setState({
+        priceMax: 350, discountOnly: false, showFree: false, activeGenres: {}, activeTags: {},
+        minScore: 0, reviewSegment: 0, activePlatforms: {}, activePlaystyles: {}, yearPreset: 2,
+      }),
+      saveFilter: () => {},
+
+      resultCount: results.length + 21,
+      modeLabel: isAi ? 'AI DESTEKLİ MOD' : 'ALGORİTMİK MOD',
+      onSortChange: () => {},
+      setGridView: () => this.setState({ view: 'grid' }),
+      setListView: () => this.setState({ view: 'list' }),
+      gridViewBg: this.state.view === 'grid' ? accent : 'transparent', gridViewText: this.state.view === 'grid' ? '#060A14' : '#7C8AA0',
+      listViewBg: this.state.view === 'list' ? accent : 'transparent', listViewText: this.state.view === 'list' ? '#060A14' : '#7C8AA0',
+      compareMode: this.state.compareMode,
+      toggleCompareMode: () => this.setState(s => ({ compareMode: !s.compareMode })),
+
+      hasFilterNote: !!this.state.filterNote,
+      filterNote: this.state.filterNote,
+
+      results,
+
+      showCompareBar: compareList.length > 0 && !this.state.showCompareTable,
+      compareCount: compareList.length,
+      openCompareTable: () => this.setState({ showCompareTable: true }),
+      showCompareTable: this.state.showCompareTable,
+      closeCompareTable: () => this.setState({ showCompareTable: false }),
+      compareGames: compareList,
+      compareRows,
+      stopProp: (e) => e.stopPropagation(),
+
+      quickViewGame: this.state.quickViewGame,
+      quickViewName: this.state.quickViewGame ? this.state.quickViewGame.name : '',
+      quickViewCoverBg: this.state.quickViewGame ? `linear-gradient(${this.state.quickViewGame.cover})` : '',
+      quickViewDesc: 'Karanlık bir dünyada, her karar kalıcı sonuçlar doğuruyor. Derin taktik savaş sistemi ve elde işlenmiş bir hikaye anlatımı sunuyor.',
+      quickViewReason: this.state.quickViewGame ? this.state.quickViewGame.reason : '',
+      closeQuickView: () => this.setState({ quickViewGame: null }),
+
+      aiInput: this.state.aiInput,
+      onAiInputChange: (e) => this.setState({ aiInput: e.target.value }),
+      aiSuggestions: [
+        { text: 'Biraz daha kısa oyunlar olsun', use: () => this.setState({ filterNote: 'FİLTRE GÜNCELLENDİ: SÜRE ≤ 15 SAAT EKLENDİ', aiInput: '' }) },
+        { text: 'Daha bağımsız/indie ağırlıklı olsun', use: () => this.setState({ filterNote: 'FİLTRE GÜNCELLENDİ: INDIE ETİKETİ EKLENDİ', aiInput: '' }) },
+        { text: 'Arkadaşlarımla oynayabileceğim olsun', use: () => this.setState({ filterNote: 'FİLTRE GÜNCELLENDİ: ÇOK OYUNCULU ZORUNLU YAPILDI', aiInput: '' }) },
+      ],
+      submitAi: () => {
+        if (this.state.aiInput.trim()) {
+          this.setState({ filterNote: `FİLTRE GÜNCELLENDİ: "${this.state.aiInput}"`, aiInput: '' });
+        }
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

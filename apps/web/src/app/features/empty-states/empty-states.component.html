@@ -1,0 +1,103 @@
+<div class="relative min-h-screen bg-void-ink text-ghost-white font-body">
+  <app-scene-background />
+
+  <div
+    class="sticky top-0 z-50 flex items-center justify-between px-12 py-5 backdrop-blur-md border-b border-panel-line"
+    style="background: rgba(6,10,20,0.7);"
+  >
+    <div class="flex items-center gap-2.5">
+      <svg width="24" height="24" viewBox="0 0 26 26">
+        <circle cx="13" cy="13" r="11" fill="none" stroke="#4CF3FF" stroke-width="1.5" />
+        <circle cx="13" cy="13" r="2.4" fill="#4CF3FF" />
+      </svg>
+      <span class="font-display font-semibold text-lg">SteamCompass</span>
+    </div>
+    @if (isDev) {
+      <div class="flex gap-6">
+        <div
+          (click)="showPrivate()"
+          class="cursor-pointer font-mono text-xs"
+          [class.text-critical-red]="view() === 'private'"
+          [class.text-slate-mute]="view() !== 'private'"
+        >
+          DURUM: ÖZEL PROFİL
+        </div>
+        <div
+          (click)="showEmpty()"
+          class="cursor-pointer font-mono text-xs"
+          [class.text-ion-cyan]="view() === 'empty'"
+          [class.text-slate-mute]="view() !== 'empty'"
+        >
+          DURUM: SONUÇ YOK
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (view() === 'private') {
+    <div class="relative z-10 min-h-[calc(100vh-73px)] flex items-center justify-center p-8">
+      <div
+        class="relative max-w-[560px] w-full bg-deep-slate rounded-card p-12 text-center"
+        style="border: 1px solid rgba(255,77,109,0.35);"
+      >
+        <app-corner-brackets color="#FF4D6D" />
+
+        <svg width="56" height="56" viewBox="0 0 56 56" class="mb-6 mx-auto">
+          <circle cx="28" cy="28" r="22" fill="none" stroke="#FF4D6D" stroke-width="2" />
+          <line x1="28" y1="16" x2="28" y2="32" stroke="#FF4D6D" stroke-width="2.5" />
+          <circle cx="28" cy="40" r="2.2" fill="#FF4D6D" />
+        </svg>
+
+        <h1 class="font-display font-bold text-2xl mb-4">Steam profilin şu an kapalı.</h1>
+        <p class="text-[15px] leading-relaxed text-slate-mute mb-8">
+          Kütüphaneni okuyabilmemiz için Steam gizlilik ayarlarından "Oyun Detayları"nı herkese açık yapman
+          gerekiyor.
+        </p>
+
+        <div class="flex justify-center gap-5 mb-9">
+          @for (s of privateSteps; track s.n) {
+            <div class="flex flex-col items-center gap-2 w-[120px]">
+              <div
+                class="w-10 h-10 rounded-lg border border-panel-line flex items-center justify-center font-mono text-slate-mute text-sm"
+              >
+                {{ s.n }}
+              </div>
+              <div class="text-xs text-slate-mute text-center leading-tight">{{ s.text }}</div>
+            </div>
+          }
+        </div>
+
+        <button
+          (click)="retryPrivateCheck()"
+          class="inline-block bg-critical-red text-void-ink font-semibold text-sm px-7 py-3.5 rounded-lg cursor-pointer border-0"
+        >
+          Ayarları Güncelledim, Tekrar Dene
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (view() === 'empty') {
+    <div class="relative z-10 min-h-[calc(100vh-73px)] grid grid-cols-[320px_1fr]">
+      <div class="bg-deep-slate border-r border-panel-line p-8 px-7">
+        <div class="font-mono text-xs tracking-[1.5px] text-slate-mute">FİLTRELER</div>
+        <p class="text-[13px] text-slate-mute mt-4 leading-relaxed">₺450 — ₺500 · Puzzle · 95+ puan</p>
+      </div>
+      <div class="flex items-center justify-center p-12">
+        <div class="text-center max-w-[420px]">
+          <app-orbit-chart [size]="260" [ringCount]="3" [ringGap]="36" [centerRadius]="10" [points]="[]" sweep="none" [showCenterLabel]="false" [showCrosshair]="true" accent="cyan" />
+          <h2 class="font-display font-bold text-2xl mt-6 mb-3">Bu aralıkta sinyal yok.</h2>
+          <p class="text-[15px] text-slate-mute leading-relaxed mb-7">
+            Fiyat aralığını veya tür seçimini genişletmeyi dene.
+          </p>
+          <button
+            (click)="resetFilters()"
+            class="inline-block bg-ion-cyan text-void-ink font-semibold text-sm px-7 py-3.5 rounded-lg cursor-pointer border-0"
+          >
+            Filtreleri Sıfırla
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,195 @@
+<div class="relative min-h-screen overflow-x-hidden bg-void-ink text-ghost-white font-body">
+  <app-scene-background
+    [blobs]="[
+      { size: 600, color: 'cyan', top: '-10%', left: '-10%' },
+      { size: 700, color: 'violet', bottom: '-15%', right: '-10%' },
+    ]"
+  />
+
+  <!-- NAVBAR -->
+  <div
+    class="sticky top-0 z-50 flex items-center justify-between px-16 py-5 backdrop-blur-md border-b border-panel-line"
+    style="background: rgba(6,10,20,0.65);"
+  >
+    <div class="flex items-center gap-2.5">
+      <svg width="26" height="26" viewBox="0 0 26 26">
+        <circle cx="13" cy="13" r="11" fill="none" stroke="#4CF3FF" stroke-width="1.5" />
+        <circle cx="13" cy="13" r="2.4" fill="#4CF3FF" />
+        <line x1="13" y1="2" x2="13" y2="6" stroke="#4CF3FF" stroke-width="1.5" />
+        <line x1="13" y1="20" x2="13" y2="24" stroke="#4CF3FF" stroke-width="1.5" />
+      </svg>
+      <span class="font-display font-semibold text-lg tracking-[0.5px]">SteamCompass</span>
+    </div>
+    <div class="flex items-center gap-8">
+      <a href="#how" class="text-ghost-white no-underline text-sm font-medium">Nasıl Çalışır</a>
+      <a href="#faq" class="text-ghost-white no-underline text-sm font-medium">SSS</a>
+      <button
+        (click)="loginWithSteam()"
+        class="bg-ion-cyan text-void-ink font-semibold text-sm px-[22px] py-[11px] rounded-lg whitespace-nowrap cursor-pointer border-0"
+      >
+        Steam ile Bağlan
+      </button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="relative z-10 min-h-[calc(100vh-73px)] grid grid-cols-2 items-center gap-12 px-16 max-w-[1440px] mx-auto">
+    <div>
+      <div class="font-mono text-[13px] tracking-[1.5px] text-ion-cyan mb-5">KÜTÜPHANE TARAMASI: HAZIR</div>
+      <h1 class="font-display font-bold text-7xl leading-[1.05] tracking-[0.3px] mb-6">
+        Kütüphanen zaten cevabı biliyor.
+      </h1>
+      <p class="text-lg leading-relaxed text-slate-mute max-w-[520px] mb-10">
+        SteamCompass, oynadığın oyunlardan çıkardığı zevk profiline göre; bütçene, türe ve puana göre gerçekten sana
+        uyan oyunları buluyor. Genel listeler değil, senin verinden çıkan öneriler.
+      </p>
+      <button
+        (click)="loginWithSteam()"
+        class="inline-block bg-ion-cyan text-void-ink font-semibold text-base px-8 py-[18px] rounded-lg cursor-pointer border-0"
+      >
+        Steam ile Bağlan ve Taramayı Başlat
+      </button>
+      <div class="font-mono text-xs text-slate-mute mt-4 tracking-[0.3px]">
+        Sadece herkese açık profil verisi okunur · İstediğin an bağlantıyı kes
+      </div>
+    </div>
+
+    <div class="relative h-[560px] flex items-center justify-center">
+      <app-orbit-chart [points]="heroPoints" [size]="520" sweep="once" />
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div id="how" class="relative z-10 max-w-[1280px] mx-auto py-30 px-16">
+    <div class="font-mono text-[13px] tracking-[1.5px] text-ion-cyan mb-4">SÜREÇ</div>
+    <h2 class="font-display font-bold text-4xl mb-16">Nasıl Çalışır</h2>
+    <div class="grid grid-cols-3 gap-8">
+      @for (step of steps; track step.num) {
+        <div class="relative bg-deep-slate border border-panel-line rounded-card p-9 px-7">
+          <app-corner-brackets />
+          <div class="mb-6">
+            @switch (step.icon) {
+              @case ('scan') {
+                <svg width="36" height="36" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#4CF3FF" stroke-width="1.5" />
+                  <line x1="18" y1="18" x2="30" y2="18" stroke="#4CF3FF" stroke-width="2" />
+                </svg>
+              }
+              @case ('orbit') {
+                <svg width="36" height="36" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#1B2436" stroke-width="1.5" />
+                  <circle cx="18" cy="4" r="3" fill="#4CF3FF" />
+                  <circle cx="30" cy="24" r="3" fill="#4CF3FF" />
+                  <circle cx="18" cy="18" r="3" fill="#E9EEF5" />
+                </svg>
+              }
+              @case ('compass') {
+                <svg width="36" height="36" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#4CF3FF" stroke-width="1.5" />
+                  <path d="M18 10 L22 18 L18 26 L14 18 Z" fill="#4CF3FF" opacity="0.85" />
+                </svg>
+              }
+            }
+          </div>
+          <div class="font-mono text-[13px] text-ion-cyan tracking-[1px] mb-3">{{ step.num }}</div>
+          <p class="text-[15px] leading-relaxed text-ghost-white m-0">{{ step.text }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- FEATURE SHOWCASE -->
+  <div class="relative z-10 max-w-[1280px] mx-auto px-16 pb-30 flex flex-col gap-24">
+    <div class="grid grid-cols-2 gap-16 items-center">
+      <div class="relative bg-deep-slate border border-panel-line rounded-card p-10 h-[320px] flex items-center justify-center">
+        <app-corner-brackets />
+        <app-orbit-chart [points]="miniPoints" [size]="260" [ringCount]="2" [ringGap]="40" [centerRadius]="10" sweep="none" [showLabels]="false" [showCenterLabel]="false" />
+      </div>
+      <div>
+        <h3 class="font-display font-semibold text-[30px] mb-4">Oyun DNA'n</h3>
+        <p class="text-base leading-[1.7] text-slate-mute m-0">
+          Ne kadar RPG, ne kadar strateji, ne kadar hızlı aksiyon oynadığını gör.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-16 items-center">
+      <div class="order-2">
+        <h3 class="font-display font-semibold text-[30px] mb-4">Filtrelerin, senin kuralların</h3>
+        <p class="text-base leading-[1.7] text-slate-mute m-0">
+          Bütçen ne olursa olsun, sadece o aralıkta öneri iste.
+        </p>
+      </div>
+      <div class="order-1 relative bg-deep-slate border border-panel-line rounded-card p-8">
+        <app-corner-brackets />
+        <div class="font-mono text-xs text-slate-mute tracking-[1px] mb-4">FİYAT ARALIĞI</div>
+        <div class="font-mono text-[22px] text-ion-cyan mb-[18px]">₺0 — ₺500</div>
+        <div class="h-1 bg-panel-line rounded-full relative mb-6">
+          <div class="absolute left-[8%] right-[35%] top-0 bottom-0 bg-ion-cyan rounded-full"></div>
+        </div>
+        <div class="flex gap-2.5 flex-wrap">
+          @for (g of genreChips; track g.name) {
+            <div
+              class="font-mono text-xs px-3.5 py-2 rounded-full border"
+              [class.border-ion-cyan]="g.active"
+              [class.text-ion-cyan]="g.active"
+              [class.border-panel-line]="!g.active"
+              [class.text-slate-mute]="!g.active"
+              [style.background]="g.active ? 'rgba(76,243,255,0.1)' : 'transparent'"
+            >
+              {{ g.name }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-2 gap-16 items-center rounded-card p-12"
+      style="background: rgba(139,124,246,0.06); border: 1px solid rgba(139,124,246,0.3);"
+    >
+      <div>
+        <div class="font-mono text-xs tracking-[1.5px] text-signal-violet mb-3.5">AI MODU</div>
+        <h3 class="font-display font-semibold text-[30px] mb-4">AI ile derinleş</h3>
+        <p class="text-base leading-[1.7] text-slate-mute m-0">
+          İstersen öneri motoru, seçimlerini Claude'a özetleyip neden önerdiğini de açıklasın.
+        </p>
+      </div>
+      <div class="rounded-lg p-6 bg-deep-slate" style="border: 1px solid rgba(139,124,246,0.35);">
+        <div class="font-mono text-xs text-signal-violet mb-2">GEREKÇE</div>
+        <p class="text-sm leading-relaxed text-ghost-white m-0">
+          "Strateji ağırlıklı profiline ve 80+ puan tercihine uygun, düşük fiyat aralığında."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRUST STRIP -->
+  <div class="relative z-10 border-y border-panel-line py-7 px-16 flex justify-center gap-12 flex-wrap">
+    <span class="font-mono text-xs text-slate-mute tracking-[1px]">YALNIZCA HERKESE AÇIK VERİ</span>
+    <span class="font-mono text-xs text-slate-mute tracking-[1px]">HESABINI İSTEDİĞİN AN SİLEBİLİRSİN</span>
+    <span class="font-mono text-xs text-slate-mute tracking-[1px]">VERİN ÖZETLENMEDEN AI'YA GÖNDERİLMEZ</span>
+  </div>
+
+  <!-- CLOSING CTA + FOOTER -->
+  <div class="relative z-10 text-center pt-30 pb-16 px-16">
+    <h2 class="font-display font-bold text-4xl mb-8">Kütüphanen seni nereye yönlendirecek?</h2>
+    <button
+      (click)="loginWithSteam()"
+      class="inline-block bg-ion-cyan text-void-ink font-semibold text-base px-8 py-[18px] rounded-lg cursor-pointer border-0"
+    >
+      Steam ile Bağlan
+    </button>
+  </div>
+  <div class="relative z-10 flex justify-between items-center px-16 py-6 border-t border-panel-line">
+    <div class="flex gap-6 font-mono text-xs text-slate-mute">
+      <a href="#" class="text-slate-mute no-underline">Gizlilik</a>
+      <a href="#" class="text-slate-mute no-underline">KVKK Metni</a>
+      <a href="#" class="text-slate-mute no-underline">İletişim</a>
+    </div>
+    <svg width="20" height="20" viewBox="0 0 26 26">
+      <circle cx="13" cy="13" r="11" fill="none" stroke="#7C8AA0" stroke-width="1.5" />
+      <circle cx="13" cy="13" r="2.4" fill="#7C8AA0" />
+    </svg>
+  </div>
+</div>

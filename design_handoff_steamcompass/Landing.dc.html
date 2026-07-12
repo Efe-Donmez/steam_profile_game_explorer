@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @keyframes sc-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes sc-sweep-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      .sc-sweep, .sc-sweep-slow { animation: none !important; }
+    }
+    ::selection { background: #4CF3FF; color: #060A14; }
+  </style>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#060A14"/>
+      <circle cx="50" cy="50" r="28" fill="none" stroke="#4CF3FF" stroke-width="2"/>
+      <circle cx="50" cy="50" r="6" fill="#4CF3FF"/>
+    </svg>
+  </template>
+</helmet>
+
+<div style="background:#060A14; color:#E9EEF5; font-family:'Inter',sans-serif; min-height:100vh; position:relative; overflow-x:hidden;">
+
+  <!-- background grid + gas clouds, fixed across whole page -->
+  <div style="position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: linear-gradient(rgba(76,243,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(76,243,255,0.035) 1px, transparent 1px);
+    background-size: 48px 48px;"></div>
+  <div style="position:fixed; top:-10%; left:-10%; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(76,243,255,0.10), transparent 70%); filter:blur(120px); z-index:0; pointer-events:none;"></div>
+  <div style="position:fixed; bottom:-15%; right:-10%; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle, rgba(139,124,246,0.09), transparent 70%); filter:blur(130px); z-index:0; pointer-events:none;"></div>
+
+  <!-- NAVBAR -->
+  <div style="position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:20px 64px; backdrop-filter:blur(14px); background:rgba(6,10,20,0.65); border-bottom:1px solid #1B2436;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="26" height="26" viewBox="0 0 26 26">
+        <circle cx="13" cy="13" r="11" fill="none" stroke="#4CF3FF" stroke-width="1.5"/>
+        <circle cx="13" cy="13" r="2.4" fill="#4CF3FF"/>
+        <line x1="13" y1="2" x2="13" y2="6" stroke="#4CF3FF" stroke-width="1.5"/>
+        <line x1="13" y1="20" x2="13" y2="24" stroke="#4CF3FF" stroke-width="1.5"/>
+      </svg>
+      <span style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:18px; letter-spacing:0.5px;">SteamCompass</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:32px;">
+      <a href="#how" style="color:#E9EEF5; text-decoration:none; font-size:14px; font-weight:500;">Nasıl Çalışır</a>
+      <a href="#faq" style="color:#E9EEF5; text-decoration:none; font-size:14px; font-weight:500;">SSS</a>
+      <a href="App.dc.html" style="background:#4CF3FF; color:#060A14; font-weight:600; font-size:14px; padding:11px 22px; border-radius:8px; text-decoration:none; white-space:nowrap;">Steam ile Bağlan</a>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div style="position:relative; z-index:1; min-height:calc(100vh - 73px); display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:48px; padding:0 64px; max-width:1440px; margin:0 auto;">
+    <div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:1.5px; color:#4CF3FF; margin-bottom:20px;">KÜTÜPHANE TARAMASI: HAZIR</div>
+      <h1 style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:72px; line-height:1.05; letter-spacing:0.3px; margin:0 0 24px 0;">Kütüphanen zaten cevabı biliyor.</h1>
+      <p style="font-size:18px; line-height:1.6; color:#7C8AA0; max-width:520px; margin:0 0 40px 0;">SteamCompass, oynadığın oyunlardan çıkardığı zevk profiline göre; bütçene, türe ve puana göre gerçekten sana uyan oyunları buluyor. Genel listeler değil, senin verinden çıkan öneriler.</p>
+      <a href="App.dc.html" style="display:inline-block; background:#4CF3FF; color:#060A14; font-weight:600; font-size:16px; padding:18px 32px; border-radius:8px; text-decoration:none;">Steam ile Bağlan ve Taramayı Başlat</a>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0; margin-top:16px; letter-spacing:0.3px;">Sadece herkese açık profil verisi okunur · İstediğin an bağlantıyı kes</div>
+    </div>
+
+    <div style="position:relative; height:560px; display:flex; align-items:center; justify-content:center;">
+      {{ radarHero }}
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div id="how" style="position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:120px 64px;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:1.5px; color:#4CF3FF; margin-bottom:16px;">SÜREÇ</div>
+    <h2 style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:40px; margin:0 0 64px 0;">Nasıl Çalışır</h2>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:32px;">
+      <sc-for list="{{ steps }}" as="step" hint-placeholder-count="3">
+        <div style="position:relative; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:36px 28px;">
+          {{ cornerBrackets }}
+          <div style="margin-bottom:24px;">{{ step.icon }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#4CF3FF; letter-spacing:1px; margin-bottom:12px;">{{ step.num }}</div>
+          <p style="font-size:15px; line-height:1.6; color:#E9EEF5; margin:0;">{{ step.text }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- FEATURE SHOWCASE -->
+  <div style="position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 64px 120px 64px; display:flex; flex-direction:column; gap:96px;">
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;">
+      <div style="position:relative; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:40px; height:320px; display:flex; align-items:center; justify-content:center;">
+        {{ cornerBrackets }}
+        {{ miniRadar }}
+      </div>
+      <div>
+        <h3 style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:30px; margin:0 0 16px 0;">Oyun DNA'n</h3>
+        <p style="font-size:16px; line-height:1.7; color:#7C8AA0; margin:0;">Ne kadar RPG, ne kadar strateji, ne kadar hızlı aksiyon oynadığını gör.</p>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;">
+      <div style="order:2;">
+        <h3 style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:30px; margin:0 0 16px 0;">Filtrelerin, senin kuralların</h3>
+        <p style="font-size:16px; line-height:1.7; color:#7C8AA0; margin:0;">Bütçen ne olursa olsun, sadece o aralıkta öneri iste.</p>
+      </div>
+      <div style="order:1; position:relative; background:#0E1524; border:1px solid #1B2436; border-radius:10px; padding:32px;">
+        {{ cornerBrackets }}
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0; letter-spacing:1px; margin-bottom:16px;">FİYAT ARALIĞI</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:22px; color:#4CF3FF; margin-bottom:18px;">₺0 — ₺500</div>
+        <div style="height:4px; background:#1B2436; border-radius:2px; position:relative; margin-bottom:24px;">
+          <div style="position:absolute; left:8%; right:35%; top:0; bottom:0; background:#4CF3FF; border-radius:2px;"></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <sc-for list="{{ genreChips }}" as="g" hint-placeholder-count="5">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; padding:8px 14px; border-radius:999px; border:1px solid {{ g.on }}; color:{{ g.color }}; background:{{ g.bg }};">{{ g.name }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; background:rgba(139,124,246,0.06); border:1px solid rgba(139,124,246,0.3); border-radius:10px; padding:48px;">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1.5px; color:#8B7CF6; margin-bottom:14px;">AI MODU</div>
+        <h3 style="font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:30px; margin:0 0 16px 0;">AI ile derinleş</h3>
+        <p style="font-size:16px; line-height:1.7; color:#7C8AA0; margin:0;">İstersen öneri motoru, seçimlerini Claude'a özetleyip neden önerdiğini de açıklasın.</p>
+      </div>
+      <div style="border:1px solid rgba(139,124,246,0.35); border-radius:8px; padding:20px 24px; background:#0E1524;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8B7CF6; margin-bottom:8px;">GEREKÇE</div>
+        <p style="font-size:14px; line-height:1.6; color:#E9EEF5; margin:0;">"Strateji ağırlıklı profiline ve 80+ puan tercihine uygun, düşük fiyat aralığında."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRUST STRIP -->
+  <div style="position:relative; z-index:1; border-top:1px solid #1B2436; border-bottom:1px solid #1B2436; padding:28px 64px; display:flex; justify-content:center; gap:48px; flex-wrap:wrap;">
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0; letter-spacing:1px;">YALNIZCA HERKESE AÇIK VERİ</span>
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0; letter-spacing:1px;">HESABINI İSTEDİĞİN AN SİLEBİLİRSİN</span>
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0; letter-spacing:1px;">VERİN ÖZETLENMEDEN AI'YA GÖNDERİLMEZ</span>
+  </div>
+
+  <!-- CLOSING CTA + FOOTER -->
+  <div style="position:relative; z-index:1; text-align:center; padding:120px 64px 64px 64px;">
+    <h2 style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:36px; margin:0 0 32px 0;">Kütüphanen seni nereye yönlendirecek?</h2>
+    <a href="App.dc.html" style="display:inline-block; background:#4CF3FF; color:#060A14; font-weight:600; font-size:16px; padding:18px 32px; border-radius:8px; text-decoration:none;">Steam ile Bağlan</a>
+  </div>
+  <div style="position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; padding:24px 64px; border-top:1px solid #1B2436;">
+    <div style="display:flex; gap:24px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7C8AA0;">
+      <a href="#" style="color:#7C8AA0; text-decoration:none;">Gizlilik</a>
+      <a href="#" style="color:#7C8AA0; text-decoration:none;">KVKK Metni</a>
+      <a href="#" style="color:#7C8AA0; text-decoration:none;">İletişim</a>
+    </div>
+    <svg width="20" height="20" viewBox="0 0 26 26">
+      <circle cx="13" cy="13" r="11" fill="none" stroke="#7C8AA0" stroke-width="1.5"/>
+      <circle cx="13" cy="13" r="2.4" fill="#7C8AA0"/>
+    </svg>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+
+  cornerBracket(top, left) {
+    const vFlip = top ? 1 : -1;
+    const hFlip = left ? 1 : -1;
+    const style = {
+      position: 'absolute',
+      width: '14px', height: '14px',
+      [top ? 'top' : 'bottom']: '10px',
+      [left ? 'left' : 'right']: '10px',
+      borderTop: top ? '1.5px solid #4CF3FF' : 'none',
+      borderBottom: !top ? '1.5px solid #4CF3FF' : 'none',
+      borderLeft: left ? '1.5px solid #4CF3FF' : 'none',
+      borderRight: !left ? '1.5px solid #4CF3FF' : 'none',
+      opacity: 0.55,
+    };
+    return React.createElement('div', { style });
+  }
+
+  renderVals() {
+    const genres = [
+      { name: 'RPG', angle: -90, dist: 120 },
+      { name: 'Strateji', angle: -45, dist: 95 },
+      { name: 'FPS', angle: 0, dist: 140 },
+      { name: 'Rogue-like', angle: 45, dist: 110 },
+      { name: 'Simülasyon', angle: 90, dist: 150 },
+      { name: 'Macera', angle: 135, dist: 100 },
+      { name: 'Puzzle', angle: 180, dist: 135 },
+      { name: 'Aksiyon', angle: -135, dist: 115 },
+    ];
+
+    const cx = 260, cy = 260;
+    const pts = genres.map(g => {
+      const rad = (g.angle * Math.PI) / 180;
+      return { ...g, x: cx + Math.cos(rad) * g.dist, y: cy + Math.sin(rad) * g.dist };
+    });
+
+    const radarHero = React.createElement('svg', { width: 520, height: 520, viewBox: '0 0 520 520', style: { overflow: 'visible' } },
+      [1,2,3].map(i => React.createElement('circle', {
+        key: 'ring'+i, cx, cy, r: i * 55, fill: 'none', stroke: '#1B2436', strokeWidth: 1
+      })),
+      pts.map((p, i) => React.createElement('line', {
+        key: 'line'+i, x1: cx, y1: cy, x2: p.x, y2: p.y, stroke: '#4CF3FF', strokeWidth: 1, opacity: 0.35
+      })),
+      React.createElement('g', {
+        className: 'sc-sweep',
+        style: { transformOrigin: `${cx}px ${cy}px`, animation: 'sc-sweep 3s ease-out 1' }
+      },
+        React.createElement('line', { x1: cx, y1: cy, x2: cx, y2: cy - 165, stroke: '#4CF3FF', strokeWidth: 2, opacity: 0.9 }),
+        React.createElement('path', {
+          d: `M ${cx} ${cy} L ${cx} ${cy-165} A 165 165 0 0 1 ${cx + 165*Math.sin(0.6)} ${cy - 165*Math.cos(0.6)} Z`,
+          fill: 'rgba(76,243,255,0.08)'
+        })
+      ),
+      React.createElement('circle', { cx, cy, r: 16, fill: '#0E1524', stroke: '#4CF3FF', strokeWidth: 2 }),
+      React.createElement('text', { x: cx, y: cy + 4, textAnchor: 'middle', fill: '#4CF3FF', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, fontWeight: 600 }, 'SEN'),
+      pts.map((p, i) => React.createElement('g', { key: 'pt'+i },
+        React.createElement('circle', { cx: p.x, cy: p.y, r: 7, fill: '#060A14', stroke: '#4CF3FF', strokeWidth: 1.5 }),
+        React.createElement('circle', { cx: p.x, cy: p.y, r: 2.5, fill: '#4CF3FF' }),
+        React.createElement('text', {
+          x: p.x + (p.x > cx ? 14 : p.x < cx ? -14 : 0),
+          y: p.y + (p.y > cy ? 18 : p.y < cy ? -12 : 4),
+          textAnchor: p.x > cx ? 'start' : p.x < cx ? 'end' : 'middle',
+          fill: '#E9EEF5', fontFamily: 'IBM Plex Mono, monospace', fontSize: 12
+        }, p.name)
+      ))
+    );
+
+    const miniPts = genres.slice(0,5).map(g => {
+      const rad = (g.angle * Math.PI) / 180;
+      const d = g.dist * 0.55;
+      return { x: 130 + Math.cos(rad) * d, y: 130 + Math.sin(rad) * d };
+    });
+    const miniRadar = React.createElement('svg', { width: 260, height: 260, viewBox: '0 0 260 260' },
+      [1,2].map(i => React.createElement('circle', { key: 'r'+i, cx: 130, cy: 130, r: i*40, fill:'none', stroke:'#1B2436', strokeWidth:1 })),
+      miniPts.map((p,i) => React.createElement('line', { key: 'l'+i, x1:130, y1:130, x2:p.x, y2:p.y, stroke:'#4CF3FF', strokeWidth:1, opacity:0.35 })),
+      React.createElement('circle', { cx:130, cy:130, r:10, fill:'#060A14', stroke:'#4CF3FF', strokeWidth:2 }),
+      miniPts.map((p,i) => React.createElement('circle', { key:'p'+i, cx:p.x, cy:p.y, r:6, fill:'#060A14', stroke:'#4CF3FF', strokeWidth:1.5 }))
+    );
+
+    return {
+      radarHero,
+      miniRadar,
+      cornerBrackets: React.createElement(React.Fragment, null,
+        this.cornerBracket(true, true), this.cornerBracket(true, false),
+        this.cornerBracket(false, true), this.cornerBracket(false, false)
+      ),
+      steps: [
+        { num: '01 TARA', text: 'Steam kütüphaneni ve oynama sürelerini okuyoruz.', icon: this.stepIcon('scan') },
+        { num: '02 ANALİZ ET', text: 'Hangi türde ne kadar zaman geçirdiğini bir profile dönüştürüyoruz.', icon: this.stepIcon('orbit') },
+        { num: '03 YÖNLEN', text: 'Bütçeni ve tercihlerini seç, sana özel öneriler gelsin.', icon: this.stepIcon('compass') },
+      ],
+      genreChips: [
+        { name: 'RPG', on: '#4CF3FF', color: '#4CF3FF', bg: 'rgba(76,243,255,0.1)' },
+        { name: 'Strateji', on: '#4CF3FF', color: '#4CF3FF', bg: 'rgba(76,243,255,0.1)' },
+        { name: 'FPS', on: '#1B2436', color: '#7C8AA0', bg: 'transparent' },
+        { name: 'Rogue-like', on: '#1B2436', color: '#7C8AA0', bg: 'transparent' },
+        { name: 'Simülasyon', on: '#1B2436', color: '#7C8AA0', bg: 'transparent' },
+      ],
+    };
+  }
+
+  stepIcon(kind) {
+    if (kind === 'scan') {
+      return React.createElement('svg', { width: 36, height: 36, viewBox: '0 0 36 36' },
+        React.createElement('circle', { cx:18, cy:18, r:14, fill:'none', stroke:'#4CF3FF', strokeWidth:1.5 }),
+        React.createElement('line', { x1:18, y1:18, x2:30, y2:18, stroke:'#4CF3FF', strokeWidth:2 })
+      );
+    }
+    if (kind === 'orbit') {
+      return React.createElement('svg', { width: 36, height: 36, viewBox: '0 0 36 36' },
+        React.createElement('circle', { cx:18, cy:18, r:14, fill:'none', stroke:'#1B2436', strokeWidth:1.5 }),
+        React.createElement('circle', { cx:18, cy:4, r:3, fill:'#4CF3FF' }),
+        React.createElement('circle', { cx:30, cy:24, r:3, fill:'#4CF3FF' }),
+        React.createElement('circle', { cx:18, cy:18, r:3, fill:'#E9EEF5' })
+      );
+    }
+    return React.createElement('svg', { width: 36, height: 36, viewBox: '0 0 36 36' },
+      React.createElement('circle', { cx:18, cy:18, r:14, fill:'none', stroke:'#4CF3FF', strokeWidth:1.5 }),
+      React.createElement('path', { d: 'M18 10 L22 18 L18 26 L14 18 Z', fill:'#4CF3FF', opacity:0.85 })
+    );
+  }
+}
+
+</script>
+</body>
+</html>

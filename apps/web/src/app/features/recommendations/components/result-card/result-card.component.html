@@ -1,0 +1,109 @@
+<div class="relative bg-deep-slate border border-panel-line rounded-card overflow-hidden">
+  <app-corner-brackets [color]="accent" />
+
+  <div
+    (click)="toggleCompare.emit()"
+    class="absolute top-3 left-3 z-[2] w-5 h-5 rounded cursor-pointer border-[1.5px]"
+    [style.border-color]="compareSelected ? accent : 'rgba(255,255,255,0.4)'"
+    [style.background]="compareSelected ? accent : 'rgba(6,10,20,0.5)'"
+  ></div>
+  <div
+    (click)="toggleSave.emit()"
+    class="absolute top-3 right-3 z-[2] w-[26px] h-[26px] rounded-full flex items-center justify-center cursor-pointer"
+    style="background: rgba(6,10,20,0.6);"
+  >
+    <svg width="13" height="13" viewBox="0 0 13 13">
+      <path
+        d="M6.5 1 L8 4.5 L11.5 5 L9 7.5 L9.7 11 L6.5 9.3 L3.3 11 L4 7.5 L1.5 5 L5 4.5 Z"
+        [attr.fill]="saved ? '#FFB84D' : 'none'"
+        [attr.stroke]="saved ? '#FFB84D' : '#7C8AA0'"
+        stroke-width="1"
+      />
+    </svg>
+  </div>
+  @if (game.discountPercent > 0) {
+    <div class="absolute top-3 left-10 z-[2] font-mono text-[11px] font-bold bg-amber-flare text-void-ink px-2 py-0.5 rounded">
+      -%{{ game.discountPercent }}
+    </div>
+  }
+
+  <div class="h-[140px] relative cursor-pointer overflow-hidden" [style.background]="coverGradient" (click)="openQuickView.emit()">
+    @if (game.headerImage) {
+      <img
+        [src]="game.headerImage"
+        [alt]="game.name"
+        loading="lazy"
+        class="absolute inset-0 w-full h-full object-cover"
+        (error)="$any($event.target).style.display = 'none'"
+      />
+      <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(14,21,36,0.85) 0%, transparent 55%);"></div>
+    } @else {
+      <div class="absolute inset-0 flex items-center justify-center p-4">
+        <span class="font-display font-bold text-lg text-center" style="color: rgba(255,255,255,0.9);">{{ game.name }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="p-4">
+    <div class="font-display font-semibold text-[15px]">{{ game.name }}</div>
+    <div class="text-[11px] text-slate-mute mb-2.5">{{ game.developers[0] }}</div>
+
+    <div class="flex gap-1.5 mb-2.5 flex-wrap">
+      @if (game.genres[0]) {
+        <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full border" [style.border-color]="accent" [style.color]="accent">
+          {{ game.genres[0] }}
+        </span>
+      }
+      @if (game.tags[0]) {
+        <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full border border-[#39465F] text-slate-mute">
+          {{ game.tags[0] }}
+        </span>
+      }
+    </div>
+
+    <div class="flex gap-2.5 mb-3 font-mono text-[10px] text-slate-mute">
+      <span>{{ platformsLabel }}</span>
+      @if (hasCoop) {
+        <span>· CO-OP</span>
+      }
+      @if (hasController) {
+        <span>· KUMANDA</span>
+      }
+    </div>
+
+    <div class="flex items-center justify-between">
+      <span class="font-mono text-sm">
+        @if (originalPriceDisplay) {
+          <span class="line-through text-slate-mute mr-1.5">{{ cur }}{{ originalPriceDisplay }}</span>
+        }
+        <span class="text-ghost-white">{{ game.isFree ? 'Ücretsiz' : cur + priceDisplay }}</span>
+      </span>
+      <div class="flex gap-1.5">
+        @if (game.metacriticScore) {
+          <span class="font-mono text-[11px] font-bold bg-amber-flare text-void-ink px-2.5 py-0.5 rounded-full">{{ game.metacriticScore }}</span>
+        }
+        <span class="font-mono text-[10px] border border-[#39465F] text-slate-mute px-2.5 py-0.5 rounded-full">{{ reviewLabel }}</span>
+      </div>
+    </div>
+  </div>
+
+  @if (isAiMode && game.reasoning) {
+    <div class="mx-4 mb-4 p-3.5 rounded-lg border" style="border-color: rgba(139,124,246,0.35); background: rgba(139,124,246,0.06);">
+      <div class="font-mono text-[10px] tracking-[1px] text-signal-violet mb-1.5">GEREKÇE</div>
+      <p class="text-xs leading-snug text-ghost-white m-0 mb-2">{{ game.reasoning }}</p>
+      <div class="flex gap-1.5 flex-wrap">
+        @for (factor of game.reasoningFactors; track factor) {
+          <span class="font-mono text-[9px] text-signal-violet border border-[rgba(139,124,246,0.35)] px-1.5 py-0.5 rounded-full">{{ factor }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <div
+    (click)="openQuickView.emit()"
+    class="text-center py-2.5 border-t border-panel-line cursor-pointer font-mono text-[11px]"
+    [style.color]="accent"
+  >
+    Hızlı Bakış
+  </div>
+</div>

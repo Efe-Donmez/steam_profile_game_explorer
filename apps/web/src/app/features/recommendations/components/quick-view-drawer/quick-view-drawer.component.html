@@ -1,0 +1,58 @@
+@if (game) {
+  <div class="fixed inset-0 z-[90]" style="background: rgba(6,10,20,0.6);" (click)="close.emit()">
+    <div
+      class="absolute top-0 right-0 bottom-0 w-[420px] bg-deep-slate border-l border-panel-line p-8 overflow-y-auto"
+      (click)="stopProp($event)"
+    >
+      <div (click)="close.emit()" class="cursor-pointer text-slate-mute text-[22px] mb-5 text-right">×</div>
+
+      <div class="h-[160px] rounded-lg overflow-hidden relative flex items-center justify-center mb-5" [style.background]="coverGradient">
+        @if (game.headerImage) {
+          <img
+            [src]="game.headerImage"
+            [alt]="game.name"
+            class="absolute inset-0 w-full h-full object-cover"
+            (error)="$any($event.target).style.display = 'none'"
+          />
+        } @else {
+          <span class="font-display font-bold text-xl text-center" style="color: rgba(255,255,255,0.9);">{{ game.name }}</span>
+        }
+      </div>
+
+      <div class="font-display font-bold text-[22px] mb-2">{{ game.name }}</div>
+      <p class="text-[13px] text-slate-mute leading-relaxed mb-5">
+        {{ game.shortDescription || 'Bu oyun için açıklama henüz mevcut değil.' }}
+      </p>
+
+      <div class="flex gap-2 mb-6">
+        <div class="flex-1 h-[60px] bg-void-ink rounded-md border border-panel-line"></div>
+        <div class="flex-1 h-[60px] bg-void-ink rounded-md border border-panel-line"></div>
+        <div class="flex-1 h-[60px] bg-void-ink rounded-md border border-panel-line"></div>
+      </div>
+
+      <div class="rounded-lg p-3.5 mb-6" style="border: 1px solid rgba(139,124,246,0.3); background: rgba(139,124,246,0.06);">
+        <div class="font-mono text-[10px] text-signal-violet tracking-[1px] mb-1.5">BU NEDEN ÖNERİLDİ</div>
+        <p class="text-[13px] text-ghost-white leading-snug m-0">
+          {{ isAiMode ? (game.reasoning || algoExplanation) : algoExplanation }}
+        </p>
+      </div>
+
+      <div class="flex gap-2.5">
+        <div
+          (click)="openDetail()"
+          class="flex-1 text-center py-3 rounded-lg font-mono text-xs font-semibold cursor-pointer"
+          [style.background]="accent"
+          style="color: #060A14;"
+        >
+          Detaylı Bilgi
+        </div>
+        <div
+          (click)="openInSteam()"
+          class="flex-1 text-center py-3 border border-panel-line rounded-lg font-mono text-xs text-ghost-white cursor-pointer"
+        >
+          Steam'de Görüntüle
+        </div>
+      </div>
+    </div>
+  </div>
+}
